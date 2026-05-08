@@ -4,9 +4,7 @@ background: https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4
 
 addons:
   - slidev-component-progress
-  - slidev-addon-asciinema
   - slidev-addon-qrcode
-  - slidev-addon-bluesky
 
 class: text-center
 highlighter: shiki
@@ -93,55 +91,6 @@ Kousen IT, Inc.
 - **Customization**: CLAUDE.md, skills, hooks, output styles
 - **Extensibility**: Plugins, MCP integration
 - **Advanced**: Effort Levels, Plan Mode, Ultraplan, Subagents, Agent Teams, SDKs
-
-</v-clicks>
-
----
-
-# Subscription Tiers
-
-<v-clicks>
-
-- **Pro** — $20/mo · ~10-40 prompts per 5h · Sonnet 4.6
-- **Max 5x** — $100/mo · ~50-200 prompts per 5h · Sonnet 4.6 or Opus 4.6
-- **Max 20x** — $200/mo · ~200-800 prompts per 5h · Sonnet 4.6 or Opus 4.6
-- **Team** — shared seats, central billing, admin controls
-- **Enterprise** — SSO, audit, custom retention, Bedrock / Vertex / Foundry routing
-- Opus 4.6 uses ~5× the credits of Sonnet 4.6; limits reset every 5 hours
-- API path: pre-paid credits via Console; auto-creates a "Claude Code" workspace for cost tracking
-
-</v-clicks>
-
-📖 **Full details**: [Using Claude Code with your Pro or Max plan](https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
-
----
-
-# Enterprise Providers
-
-<v-clicks>
-
-Three first-class providers for enterprises that need their own infrastructure:
-
-- **AWS Bedrock** — `CLAUDE_CODE_USE_BEDROCK=1`
-- **Google Vertex AI** — `CLAUDE_CODE_USE_VERTEX=1`
-- **Microsoft Foundry** — `CLAUDE_CODE_USE_FOUNDRY=1`
-
-</v-clicks>
-
-<v-clicks>
-
-⚠️ **Gotcha — model aliases default to *previous-version* models on all three:**
-
-- `opus` → Opus **4.6** (not 4.7)
-- `sonnet` → Sonnet **4.5** (not 4.6)
-
-Use explicit version IDs for the latest models:
-```bash
-ANTHROPIC_MODEL=claude-opus-4-7         # explicit, latest
-ANTHROPIC_MODEL=claude-sonnet-4-6       # explicit, latest
-```
-
-Auth via the cloud provider's IAM, not an Anthropic API key. LLM gateway pattern: `ANTHROPIC_BASE_URL` + `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`.
 
 </v-clicks>
 
@@ -276,6 +225,92 @@ Terminal status indicators:
 
 ---
 
+# When NOT to Use Claude Code
+
+<v-clicks>
+
+- **One-line edits you already know how to make** — typing is faster than prompting
+- **Highly regulated codebases** without an enterprise plan + audit trail in place
+- **Tasks needing real-time human judgment** (UX copy decisions, brand voice, legal review)
+- **Production incidents under time pressure** — pair with a human, don't drive solo
+- **Learning a new language/framework** — let the friction teach you first
+- **When you can't review the diff** — if you won't read it, don't ship it
+
+</v-clicks>
+
+The right question isn't "can Claude do this?" — it's "will I understand what shipped?"
+
+---
+
+# Subscription Tiers
+
+<v-clicks>
+
+- **Pro** — $20/mo · ~10-40 prompts per 5h · Sonnet 4.6
+- **Max 5x** — $100/mo · ~50-200 prompts per 5h · Sonnet 4.6 or Opus
+- **Max 20x** — $200/mo · ~200-800 prompts per 5h · Sonnet 4.6 or Opus
+- **Team** — shared seats, central billing, admin controls
+- **Enterprise** — SSO, audit, custom retention, Bedrock / Vertex / Foundry routing
+- Opus uses ~5× the credits of Sonnet; limits reset every 5 hours
+- API path: pre-paid credits via Console; auto-creates a "Claude Code" workspace for cost tracking
+
+</v-clicks>
+
+📖 **Full details**: [Using Claude Code with your Pro or Max plan](https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
+
+---
+
+# Picking a Model
+
+<v-clicks>
+
+| Model | When to reach for it |
+|---|---|
+| **Opus 4.7** | Architecture decisions, multi-file refactors, hard debugging, agent orchestration |
+| **Sonnet 4.6** | Default daily driver — most coding, exploration, doc generation |
+| **Haiku 4.5** | Fast loops, batch operations, hooks, classifiers, cheap tool calls |
+
+- **Switch mid-conversation**: `Alt+P` / `Option+P`
+- **Set per session**: `claude --model claude-opus-4-7`
+- **Effort levels** (`/effort low|medium|high`) are orthogonal — control depth on whichever model you picked
+
+</v-clicks>
+
+Rule of thumb: Sonnet first. Reach for Opus when you've already failed once on Sonnet, not preemptively.
+
+---
+
+# Enterprise Providers
+
+<v-clicks>
+
+Three first-class providers for enterprises that need their own infrastructure:
+
+- **AWS Bedrock** — `CLAUDE_CODE_USE_BEDROCK=1`
+- **Google Vertex AI** — `CLAUDE_CODE_USE_VERTEX=1`
+- **Microsoft Foundry** — `CLAUDE_CODE_USE_FOUNDRY=1`
+
+</v-clicks>
+
+<v-clicks>
+
+⚠️ **Gotcha — model aliases default to *previous-version* models on all three:**
+
+- `opus` → Opus **4.6** (not 4.7)
+- `sonnet` → Sonnet **4.5** (not 4.6)
+
+Use explicit version IDs for the latest models:
+```bash
+ANTHROPIC_MODEL=claude-opus-4-7         # explicit, latest
+ANTHROPIC_MODEL=claude-sonnet-4-6       # explicit, latest
+```
+
+Auth via the cloud provider's IAM, not an Anthropic API key. LLM gateway pattern: `ANTHROPIC_BASE_URL` + `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`.
+
+</v-clicks>
+
+---
+
 # Installation
 
 <v-clicks>
@@ -293,19 +328,6 @@ Terminal status indicators:
 </v-clicks>
 
 The `claude` binary is itself native — npm is no longer the primary path.
-
----
-
-# Basic Usage
-
-<v-clicks>
-
-- Start Claude Code: `claude`
-- Natural language prompts
-- File-specific requests
-- Multi-step workflows
-
-</v-clicks>
 
 ---
 
@@ -399,16 +421,31 @@ backgroundSize: cover
 
 ---
 
-# Refactoring Capabilities
+# Refactoring, Docs, Debugging
 
 <v-clicks>
 
-- Multi-file operations
-- Smart refactoring
-- Pattern replacement
-- Modern syntax adoption
+### Refactoring
+```bash
+"Convert all callbacks in @src/api/ to async/await"
+"Replace the manual JSON parsing with Jackson annotations"
+```
+
+### Documentation
+```bash
+"Generate JavaDoc for every public method in UserService"
+"Write a README.md from the current package.json scripts and folder layout"
+```
+
+### Debugging
+```bash
+"Here's the stack trace — trace it back to the root cause and propose a fix"
+"@logs/2026-05-08.log shows three different errors. Group them by likely cause."
+```
 
 </v-clicks>
+
+Pattern: name the *file or symbol*, state the *outcome*, and let Claude pick the steps.
 
 ---
 layout: image-right
@@ -455,31 +492,6 @@ image: https://images.unsplash.com/photo-1556075798-4825dfaaf498?ixlib=rb-4.0.3&
 💡 **Pro tip**: Request "in parallel" for faster execution
 
 ---
-
-# Documentation Generation
-
-<v-clicks>
-
-- Inline comments
-- `README.md` files
-- API documentation
-- Architecture docs
-- `CLAUDE.md` project configuration (covered later)
-
-</v-clicks>
-
----
-
-# Debugging Workflows
-
-<v-clicks>
-
-- Error message analysis
-- Stack trace navigation
-- Configuration debugging
-- Integration debugging
-
-</v-clicks>
 
 ---
 layout: image-left
@@ -601,11 +613,11 @@ Don't memorize the catalog — it changes monthly. Learn the categories and let 
 mkdir -p .claude/commands
 echo "Create service for $ARGUMENTS entity" > .claude/commands/service.md
 
-# User command (personal, requires /user: prefix)
-mkdir -p ~/.claude/commands  
+# User-scoped command (personal, available across projects)
+mkdir -p ~/.claude/commands
 echo "Fix issue #$ARGUMENTS" > ~/.claude/commands/fix.md
 
-# Usage: /service User  or  /user:fix 123
+# Usage: /service User  or  /fix 123
 ```
 
 Real-world example:
@@ -636,76 +648,34 @@ CLAUDE.md file as though the user invoked the init task.
 
 ---
 
-# Hook Example: Security Validation
+# Hook Examples
 
 <v-clicks>
 
-- **Pre-validate file edits** before they happen
-- Block dangerous operations automatically
-- Provide feedback that Claude can respond to
+### Security validation (block dangerous edits)
+```json
+{ "hooks": { "PreToolUse": [{
+  "type": "command", "command": "validate-edit.sh", "if": "Edit(**)"
+}] } }
+```
+
+### Workflow automation (auto-format on write)
+```json
+{ "hooks": { "PreToolUse": [{
+  "type": "command", "command": "prettier --write $FILE", "if": "Write(**)"
+}] } }
+```
+
+### Session lifecycle (report on end)
+```json
+{ "hooks": { "SessionEnd": [{
+  "type": "command", "command": "generate-session-report.sh"
+}] } }
+```
 
 </v-clicks>
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [{
-      "type": "command",
-      "command": "validate-edit.sh",
-      "if": "Edit(**)"
-    }]
-  }
-}
-```
-
----
-
-# Hook Example: Workflow Automation
-
-<v-clicks>
-
-- **Auto-format code** on file write
-- Run linters, formatters, or validators
-- Maintain code quality automatically
-
-</v-clicks>
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [{
-      "type": "command",
-      "command": "prettier --write $FILE",
-      "if": "Write(**)"
-    }]
-  }
-}
-```
-
----
-
-# Hook Example: Session Management
-
-<v-clicks>
-
-- **SessionEnd hooks** run when conversation ends
-- Generate summary reports or logs
-- Clean up resources or finalize work
-
-</v-clicks>
-
-```json
-{
-  "hooks": {
-    "SessionEnd": [{
-      "type": "command",
-      "command": "generate-session-report.sh"
-    }]
-  }
-}
-```
-
-**Important**: Treat hook feedback as user input - Claude adjusts if blocked
+**Important**: Treat hook feedback as user input — Claude adjusts if blocked.
 
 ---
 
@@ -1179,38 +1149,35 @@ Lead Agent ──→ creates tasks ──→ assigns teammates
 
 ---
 
-# Background Agents & Worktree Isolation
+# Background Agents
 
 <v-clicks>
 
-- **Background agents**: Run tasks while you keep working
-  - `Ctrl+B` to background a running agent
-  - `Ctrl+X Ctrl+K` to kill all background agents
-- **Worktree isolation**: Agents work in temporary git worktrees
-  - `claude -w` or `claude --worktree` starts in isolated worktree
-  - Subagents support `isolation: "worktree"` for safe parallel work
-  - Changes are on a separate branch — merge when ready
-- **`/batch` skill**: Parallel changes across many files using worktrees
-- **Combined power**: Background + worktree = fearless parallel development
+- **Run tasks while you keep working** — your prompt stays free
+- **`Ctrl+B`** to background a running agent
+- **`Ctrl+X Ctrl+K`** to kill all background agents
+- **`/batch` skill**: parallel changes across many files (uses worktrees under the hood)
+- **Subagents** can declare `isolation: "worktree"` in frontmatter for safe parallel writes
+- See the *Git Worktrees* slide later for the worktree mechanics
 
 </v-clicks>
 
 ---
 
-# Session Management & Cross-Surface Workflows
+# Session Management
 
 <v-clicks>
 
-- **`--remote`**: Start a cloud session: `claude --remote "Fix the auth bug"`
-- **`/teleport`**: Pull a web session back to your terminal
-- **Dispatch**: Send tasks from phone → Desktop app (Pro/Max)
-- **Named sessions**: `/rename my-feature` for easy identification
-- **PR-linked sessions**: `claude --from-pr 123` resumes PR context
-- **Session branching**: `/branch` to branch a conversation
-- **Resume picker**: `claude --resume` shows up to 50 recent sessions
+- **Named sessions**: `/rename my-feature` for easy identification later
+- **PR-linked sessions**: `claude --from-pr 123` resumes with PR context loaded
+- **Session branching**: `/branch` to fork a conversation when you want to try two paths
+- **Resume picker**: `claude --resume` shows up to 50 recent sessions with timestamps
+- **Continue last**: `claude --continue` jumps straight back into the most recent
 - **Auto-memory**: Claude records and recalls context across sessions
 
 </v-clicks>
+
+(Cross-surface handoffs — `--remote`, `/teleport`, `/desktop`, Dispatch — are covered in the Surfaces section.)
 
 ---
 
@@ -1240,9 +1207,9 @@ Lead Agent ──→ creates tasks ──→ assigns teammates
 - **Different from Auto-Accept** (`Shift+Tab`): Auto Mode is intelligent, not blanket
 - **Allows**: Local file ops, dependency installs, read-only HTTP, pushing to current branch
 - **Blocks**: Downloading + executing code, production deploys, force pushes, IAM changes
-- **Requirements**: Team / Enterprise / API plan, Sonnet 4.6 or Opus 4.6
+- **Requirements**: Team / Enterprise / API plan, on Sonnet 4.6 or current Opus
 - Enable: `--enable-auto-mode` or cycle with `Shift+Tab`
-- **Replaces** `--dangerously-skip-permissions` as the recommended escape hatch (the old flag still works but is now legacy)
+- **Recommended over** `--dangerously-skip-permissions` for new workflows; the old flag still works for personal/Pro use
 
 </v-clicks>
 
@@ -1404,61 +1371,34 @@ for await (const message of query({
 
 ---
 
-# SDK: Python Integration
+# SDK in Three Patterns
 
 <v-clicks>
 
-- **Async iteration** over Claude responses
-- **Context files** passed directly to queries
-- **Turn limits** for controlled execution
-
-</v-clicks>
-
+### Python — async iteration with context files
 ```python
 from claude_code import query
 
 async for msg in query("Refactor this module",
-                       context_files=["app.py"],
-                       max_turns=3):
+                       context_files=["app.py"], max_turns=3):
     print(msg.content)
 ```
 
----
-
-# SDK: CI/CD Integration
-
-<v-clicks>
-
-- **Automate code reviews** in pull requests
-- **JSON output** for parsing results
-- **Integrate with GitHub Actions**, GitLab CI, etc.
-
-</v-clicks>
-
+### CI/CD — JSON output for parsing
 ```yaml
-# GitHub Actions example
 - name: AI Code Review
-  run: |
-    claude -p "Review PR changes" --output-format json > review.json
+  run: claude -p "Review PR changes" --output-format json > review.json
 ```
 
----
-
-# SDK: Git Hooks
-
-<v-clicks>
-
-- **Pre-commit security checks** before code is committed
-- **Limit tools** for focused, fast execution
-- **Fail-fast** on security issues
-
-</v-clicks>
-
+### Git hooks — restricted tools, fail fast
 ```bash
-#!/bin/bash
 # .git/hooks/pre-commit
 claude -p "Check for security issues" --allowed-tools read,grep
 ```
+
+</v-clicks>
+
+Same SDK, three deployment shapes: interactive script, CI step, git hook.
 
 ---
 
@@ -1546,44 +1486,20 @@ backgroundSize: cover
 
 <v-clicks>
 
-- Use `/compact` command to compress conversation history
-- Claude Code automatically compacts when context limit approaches
-- Warning message appears before auto-compaction
-- Preserves essential information while reducing token usage
-- Manual compaction gives you control over timing
+- **`/compact`** compresses conversation history while preserving essentials
+- **Auto-compaction** triggers near the context limit; you'll see a warning first
+- **Manual is better** when you know a logical chunk is done — pick the seam
+- **Long sessions** stay coherent over hundreds of messages with periodic compacts
+- **`/context`** shows what's currently consuming the window
 
 </v-clicks>
 
 ```bash
-# Manually compact the conversation
-/compact
+/compact   # proactive — pick your moment
 
-# Warning message example:
-# ⚠️ Context limit approaching. Auto-compacting in next response
-# to preserve conversation history and continue working.
-```
-
----
-
-# Smart Context Management
-
-<v-clicks>
-
-- **Auto-compaction**: Automatic when approaching limits
-- **Warning messages**: Advance notice before compaction
-- **Preservation strategy**: Keeps essential information
-- **Manual control**: Use `/compact` proactively
-- **Long conversations**: Maintains context over hundreds of messages
-
-</v-clicks>
-
-```bash
-# Warning you'll see:
+# What you'll see when auto-compaction is imminent:
 ⚠️ Context limit approaching. Auto-compacting in next response
 to preserve conversation history and continue working.
-
-# Proactive management:
-/compact  # Compress conversation manually
 ```
 
 ---
@@ -1741,35 +1657,6 @@ echo $ANTHROPIC_API_KEY  # Verify API key
 
 ---
 
-# Security & Permissions
-
-<v-clicks>
-
-### Security-Focused Aliases
-```bash
-# Safe mode - limited tools
-alias claude-safe='claude --allowed-tools read,write,edit'
-
-# Review mode - read-only
-alias claude-review='claude --allowed-tools read,grep'
-
-# Development mode - all tools
-alias claude-dev='claude --allowed-tools all'
-```
-
-### Tool Restrictions
-```bash
-# Disable specific tools
-claude --disabled-tools bash,webfetch
-
-# Allow only specific tools
-claude --allowed-tools read,write,edit,task
-```
-
-</v-clicks>
-
----
-
 # Common Issues: Installation
 
 <v-clicks>
@@ -1824,20 +1711,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 ---
 
-# Team Collaboration
-
-<v-clicks>
-
-- Share `CLAUDE.md` configurations
-- Document successful patterns
-- Review AI-generated code together
-- Establish team conventions
-
-</v-clicks>
-
----
-
-# New Commands: Workflow
+# Command Reference: Workflow
 
 <v-clicks>
 
@@ -1854,7 +1728,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 ---
 
-# New Commands: Utilities
+# Command Reference: Utilities
 
 <v-clicks>
 
