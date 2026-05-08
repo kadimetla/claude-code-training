@@ -41,10 +41,11 @@ When restricting tools in headless or CI workflows, prefer `--disallowedTools` o
 2. Initialize git: `git init`
 3. Start Claude Code: `claude`
 4. Create your first branch: `git checkout -b basic-lyrics-app`
-5. Find song lyrics: Google any song title + "lyrics" and copy the lyrics to a text file called `lyrics.txt`. Or use the sample provided in the repo root:
+5. Choose source text: prefer public-domain content for demos so copyright filters don't degrade Claude's responses. The repo ships `sonnet_18.txt` (Shakespeare) at the root — copy it as your starting point:
    ```bash
-   cp ../wichita_lineman_lyrics.txt lyrics.txt
+   cp ../sonnet_18.txt lyrics.txt
    ```
+   You can also use any other public-domain text — Project Gutenberg has thousands of options. Avoid copyrighted song lyrics; they tend to trip content filters and make demos unreliable.
 
 ### Exercises
 
