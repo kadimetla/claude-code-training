@@ -48,6 +48,14 @@ This repository contains all the materials for the Claude Code Training course:
 
 3.  Open your browser at <http://localhost:3030>
 
+### 📄 Latest PDF
+
+A current PDF of the slides is rebuilt automatically whenever `slides.md` lands on `main` and attached to a rolling release. Stable download URL:
+
+**<https://github.com/kousen/claude-code-training/releases/latest/download/slides-export.pdf>**
+
+No PDF is committed to the repo — it lives only in [GitHub Releases](https://github.com/kousen/claude-code-training/releases/tag/slides-latest), built by [`.github/workflows/build-slides-pdf.yml`](.github/workflows/build-slides-pdf.yml).
+
 ## 📚 Getting Started with the Labs
 
 ### Prerequisites

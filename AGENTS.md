@@ -29,15 +29,25 @@ This project contains comprehensive training materials for teaching Codex to pro
 
 ### Presentation Development
 1. **Run development server:** `pnpm dev`
-2. **Build for production:** `pnpm build` 
-3. **Export to PDF:** `pnpm export`
-4. **Export to PowerPoint:** `pnpm export --format pptx --output Codex-training.pptx`
+2. **Build for production:** `pnpm build`
+3. **Export to PDF locally:** `pnpm export` (produces `slides-export.pdf`, gitignored)
+4. **Export to PowerPoint:** `pnpm export --format pptx --output slides-export.pptx`
 
-**Note**: For exporting presentations, you may need to install Playwright first:
+**Note**: For local exporting, you may need to install Playwright's Chromium first:
 ```bash
-pnpm install -D playwright-chromium
-pnpm exec playwright install
+pnpm exec playwright install chromium
 ```
+
+### Slides PDF distribution
+The published PDF is **not committed to the repo**. `.github/workflows/build-slides-pdf.yml` auto-builds on every push to `main` that touches `slides.md` (or `package.json` / `pnpm-lock.yaml` / the workflow itself) and attaches `slides-export.pdf` to a rolling `slides-latest` release. Stable URL:
+
+```
+https://github.com/kousen/claude-code-training/releases/latest/download/slides-export.pdf
+```
+
+- **Manual trigger:** Actions → "Build & publish slides PDF" → "Run workflow", or `gh workflow run build-slides-pdf.yml`
+- **Do not commit** `slides-export.pdf` — it's gitignored on purpose
+- **Snapshot for a specific training:** after a build, `gh release create slides-YYYY-MM-DD slides-export.pdf --notes "<event>"` makes a sibling release without disrupting the rolling tag
 
 ### Content Development Standards
 - **Branch-First Approach**: All exercises emphasize creating branches before changes
