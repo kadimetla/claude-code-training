@@ -18,6 +18,3 @@ slides-original-order.md
 # Test artifacts
 playwright-report/
 test-results/
-
-# Slidev export output
-slides-export.pdf
