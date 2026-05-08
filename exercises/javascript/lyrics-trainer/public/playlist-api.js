@@ -27,14 +27,14 @@ export async function getAvailableLyrics() {
     // Return default files if fetch fails
     return [
       {
-        name: 'this_is_the_moment.txt',
-        path: 'lyrics/this_is_the_moment.txt',
-        title: 'This Is The Moment'
+        name: 'sonnet_18.txt',
+        path: 'lyrics/sonnet_18.txt',
+        title: 'Sonnet 18'
       },
       {
-        name: 'bohemian_rhapsody.txt',
-        path: 'lyrics/bohemian_rhapsody.txt',
-        title: 'Bohemian Rhapsody'
+        name: 'casey_at_the_bat.txt',
+        path: 'lyrics/casey_at_the_bat.txt',
+        title: 'Casey At The Bat'
       }
     ];
   }

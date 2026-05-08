@@ -117,14 +117,16 @@ To access on mobile devices on the same network:
 ```
 .
 ├── lyrics/                     # Lyrics text files
-│   ├── this_is_the_moment.txt  # Default lyrics
+│   ├── sonnet_18.txt           # Default lyrics (public domain)
+│   ├── casey_at_the_bat.txt    # Second sample (public domain)
 │   └── ...                     # User-added lyrics files
 ├── public/                     # Compiled assets & static files
 │   ├── index.html
 │   ├── style.css
 │   ├── script.js
 │   ├── lyrics/                 # Served lyrics files
-│   │   └── this_is_the_moment.txt  # Default lyrics
+│   │   ├── sonnet_18.txt       # Default lyrics
+│   │   └── casey_at_the_bat.txt
 │   ├── manifest.json
 │   ├── service-worker.js
 │   ├── icon-192.png            # PWA icon

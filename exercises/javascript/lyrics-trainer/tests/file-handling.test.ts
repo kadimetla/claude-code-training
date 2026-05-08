@@ -56,10 +56,10 @@ describe('File Handling', () => {
   });
   
   it('should load default lyrics successfully', async () => {
-    const result = await mockLoadDefaultLyrics('lyrics/this_is_the_moment.txt');
+    const result = await mockLoadDefaultLyrics('lyrics/sonnet_18.txt');
     
     // Verify fetch was called with the right path
-    expect(global.fetch).toHaveBeenCalledWith('lyrics/this_is_the_moment.txt');
+    expect(global.fetch).toHaveBeenCalledWith('lyrics/sonnet_18.txt');
     
     // Check the returned lyrics
     expect(result).toEqual(['Line 1', 'Line 2', 'Line 3']);

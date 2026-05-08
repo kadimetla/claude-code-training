@@ -4,14 +4,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 function mockGetAvailableLyrics() {
   return Promise.resolve([
     {
-      name: 'this_is_the_moment.txt',
-      path: 'lyrics/this_is_the_moment.txt',
-      title: 'This Is The Moment'
+      name: 'sonnet_18.txt',
+      path: 'lyrics/sonnet_18.txt',
+      title: 'Sonnet 18'
     },
     {
-      name: 'bohemian_rhapsody.txt',
-      path: 'lyrics/bohemian_rhapsody.txt',
-      title: 'Bohemian Rhapsody'
+      name: 'casey_at_the_bat.txt',
+      path: 'lyrics/casey_at_the_bat.txt',
+      title: 'Casey At The Bat'
     }
   ]);
 }
@@ -53,9 +53,9 @@ describe('Playlist API', () => {
     const lyrics = await mockGetAvailableLyrics();
     
     expect(lyrics).toHaveLength(2);
-    expect(lyrics[0].name).toBe('this_is_the_moment.txt');
-    expect(lyrics[0].title).toBe('This Is The Moment');
-    expect(lyrics[1].name).toBe('bohemian_rhapsody.txt');
+    expect(lyrics[0].name).toBe('sonnet_18.txt');
+    expect(lyrics[0].title).toBe('Sonnet 18');
+    expect(lyrics[1].name).toBe('casey_at_the_bat.txt');
   });
   
   it('should handle dashes and underscores in file names', () => {
@@ -73,7 +73,7 @@ describe('Playlist API', () => {
   it('should provide proper path for files', async () => {
     const lyrics = await mockGetAvailableLyrics();
     
-    expect(lyrics[0].path).toBe('lyrics/this_is_the_moment.txt');
-    expect(lyrics[1].path).toBe('lyrics/bohemian_rhapsody.txt');
+    expect(lyrics[0].path).toBe('lyrics/sonnet_18.txt');
+    expect(lyrics[1].path).toBe('lyrics/casey_at_the_bat.txt');
   });
 });

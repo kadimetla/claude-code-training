@@ -30,7 +30,7 @@ const STORAGE_KEY = 'lyricsTrainerState';
 const THEME_KEY = 'lyricsTrainerTheme';
 const CUSTOM_LYRICS_KEY = 'customLyrics';
 const LYRICS_SOURCE_KEY = 'lyricsSource';
-const DEFAULT_LYRICS_FILE = 'this_is_the_moment.txt';
+const DEFAULT_LYRICS_FILE = 'sonnet_18.txt';
 const LAST_LYRICS_FILE_KEY = 'lastLyricsFile';
 const LYRICS_PATH_KEY = 'lyricsPath';
 
