@@ -98,21 +98,17 @@ Kousen IT, Inc.
 
 ---
 
-# Pricing Plans
+# Subscription Tiers
 
 <v-clicks>
 
-- **Pro Plan** - $20/month
-  - ~10-40 prompts per 5 hours
-  - Sonnet 4.6 only
-- **Max Plan 5x** - $100/month
-  - ~50-200 prompts per 5 hours
-  - Sonnet 4.6 or Opus 4.6
-- **Max Plan 20x** - $200/month
-  - ~200-800 prompts per 5 hours
-  - Sonnet 4.6 or Opus 4.6
-- **Note**: Opus 4.6 uses 5x more credits than Sonnet 4.6
-- **Limits reset**: Every 5 hours
+- **Pro** — $20/mo · ~10-40 prompts per 5h · Sonnet 4.6
+- **Max 5x** — $100/mo · ~50-200 prompts per 5h · Sonnet 4.6 or Opus 4.6
+- **Max 20x** — $200/mo · ~200-800 prompts per 5h · Sonnet 4.6 or Opus 4.6
+- **Team** — shared seats, central billing, admin controls
+- **Enterprise** — SSO, audit, custom retention, Bedrock / Vertex / Foundry routing
+- Opus 4.6 uses ~5× the credits of Sonnet 4.6; limits reset every 5 hours
+- API path: pre-paid credits via Console; auto-creates a "Claude Code" workspace for cost tracking
 
 </v-clicks>
 
@@ -120,11 +116,42 @@ Kousen IT, Inc.
 
 ---
 
+# Enterprise Providers
+
+<v-clicks>
+
+Three first-class providers for enterprises that need their own infrastructure:
+
+- **AWS Bedrock** — `CLAUDE_CODE_USE_BEDROCK=1`
+- **Google Vertex AI** — `CLAUDE_CODE_USE_VERTEX=1`
+- **Microsoft Foundry** — `CLAUDE_CODE_USE_FOUNDRY=1`
+
+</v-clicks>
+
+<v-clicks>
+
+⚠️ **Gotcha — model aliases default to *previous-version* models on all three:**
+
+- `opus` → Opus **4.6** (not 4.7)
+- `sonnet` → Sonnet **4.5** (not 4.6)
+
+Use explicit version IDs for the latest models:
+```bash
+ANTHROPIC_MODEL=claude-opus-4-7         # explicit, latest
+ANTHROPIC_MODEL=claude-sonnet-4-6       # explicit, latest
+```
+
+Auth via the cloud provider's IAM, not an Anthropic API key. LLM gateway pattern: `ANTHROPIC_BASE_URL` + `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`.
+
+</v-clicks>
+
+---
+
 # What is Claude Code?
 
 <v-clicks>
 
-- AI development tool across **5 surfaces**: CLI, VS Code, JetBrains, Desktop, Web
+- AI development tool across **5 primary surfaces** (CLI, VS Code, JetBrains, Desktop, Web) plus integrations (Slack, Chrome, iOS, GitHub Actions, GitLab CI/CD)
 - Context-aware codebase understanding
 - Autonomous, collaborative, and **multi-agent** modes
 - Multi-language support with **LSP code intelligence**
@@ -188,6 +215,26 @@ Local surfaces share: settings, CLAUDE.md, MCP servers, skills, and hooks. Web s
 
 ---
 
+# Integrations & Headless Surfaces
+
+<v-clicks>
+
+- **Slack** — invoke Claude Code in channels and threads
+- **Chrome extension** — page-aware assistance in the browser
+- **iOS app** — read sessions, dispatch work, review diffs from your phone
+- **GitHub Actions** — `anthropics/claude-code-action` for PR reviews, auto-fix, scripted workflows
+- **GitLab CI/CD** — official integration for pipelines
+- **No clean handoff** from Desktop *Code* tab back to terminal as of writing — plan accordingly
+
+</v-clicks>
+
+Surface handoff slash commands you'll meet again later:
+- `/desktop` (alias `/app`) — terminal → desktop *Code* tab *(macOS / Windows)*
+- `/teleport` (alias `/tp`) — web → terminal
+- `/remote-control` (alias `/rc`) — make terminal session controllable from claude.ai
+
+---
+
 # Dispatch & Remote Control
 
 <v-clicks>
@@ -233,15 +280,19 @@ Terminal status indicators:
 
 <v-clicks>
 
-- **Preferred**: Native binary installer:
+- **Recommended** (macOS / Linux / WSL): native installer, auto-updates
   ```bash
-  curl -fsSL https://storage.googleapis.com/anthropic-releases/claude-cli/install.sh | bash
+  curl -fsSL https://claude.ai/install.sh | bash
   ```
-- Legacy (deprecated): `npm install -g @anthropic-ai/claude-code`
-- Set API key: `export ANTHROPIC_API_KEY="your-key"`
+- **Homebrew** (macOS): `brew install --cask claude-code` *(manual upgrade)*
+- **WinGet** (Windows): `winget install Anthropic.ClaudeCode` *(manual upgrade)*
+- **Linux packages**: `apt`, `dnf`, `apk` for Debian / Fedora / RHEL / Alpine
+- **Advanced** (legacy): `npm install -g @anthropic-ai/claude-code`
 - Verify: `claude --version`
 
 </v-clicks>
+
+The `claude` binary is itself native — npm is no longer the primary path.
 
 ---
 
@@ -466,6 +517,29 @@ backgroundSize: cover
 
 ---
 
+# AGENTS.md vs CLAUDE.md (the trap)
+
+<v-clicks>
+
+- **`AGENTS.md`** is the convention for *other* tools (Codex, etc.)
+- **Claude Code does NOT natively read `AGENTS.md`** — only `CLAUDE.md` (open issue [#6235](https://github.com/anthropics/claude-code/issues/6235))
+- A repo with both files looks bilingual but is silently single-language to Claude Code
+- **Bridge pattern** — reference `AGENTS.md` from `CLAUDE.md` so Claude Code picks it up:
+
+```markdown
+# CLAUDE.md
+…project-specific guidance for Claude Code…
+
+## Cross-tool conventions
+See @AGENTS.md for conventions shared with Codex and other agentic tools.
+```
+
+- The `@` import keeps a single source of truth without duplicating content
+
+</v-clicks>
+
+---
+
 # Custom Statusline
 
 <v-clicks>
@@ -494,17 +568,21 @@ Perfect for teams wanting standardized context visibility
 
 ---
 
-# Custom Slash Commands (Skills-First)
+# Slash Commands (Four Categories)
 
 <v-clicks>
 
-- **Skills** (`.claude/skills/`) are the modern, recommended approach
-- **Commands** (`.claude/commands/`) still work as a lightweight alternative
-- Both: filename becomes command name, `$ARGUMENTS` for dynamic content
-- **Project scope**: Shared with team via `.claude/skills/` or `.claude/commands/`
-- **User scope**: Personal via `~/.claude/skills/` or `~/.claude/commands/`
+- **Built-in** — `/help`, `/clear`, `/compact`, `/init`, `/memory`, `/permissions`, `/agents`, `/output-style`, `/plan`, `/login`, `/mcp`, … (~30 and growing)
+- **Custom (now merged into skills)** — `.claude/commands/<name>.md` still works; skills are the modern path
+- **Skill-derived** — any skill with `user-invocable: true` exposes `/<skill-name>`
+- **Plugin-supplied** — installed plugins contribute their own commands
+- **Discovery**: `/help` lists current commands; `/` completion as you type
+- **Conflict rule**: if a command and a skill share a name, the skill wins
+- **Scope**: project (`.claude/`) shares with team; user (`~/.claude/`) is personal
 
 </v-clicks>
+
+Don't memorize the catalog — it changes monthly. Learn the categories and let `/help` enumerate.
 
 ---
 
@@ -712,8 +790,10 @@ Key shortcuts: `Ctrl+B` (background), `Ctrl+X Ctrl+K` (kill agents), `Ctrl+X Ctr
 <v-clicks>
 
 - **Explanatory**: Verbose with detailed explanations
-- **Learning**: Teaching-focused with step-by-step guidance
-- **Configure in settings** or via command line
+- **Learning**: Teaching-focused with step-by-step guidance and inline insights
+- **Concise**: Tight, action-focused responses
+- **Technical**: Engineer-to-engineer register with minimal scaffolding
+- **Configure in settings** or via `/output-style <name>` mid-session
 
 </v-clicks>
 
@@ -1155,13 +1235,14 @@ Lead Agent ──→ creates tasks ──→ assigns teammates
 
 <v-clicks>
 
-- **Eliminates permission prompts** via a background safety classifier
+- **Eliminates permission prompts** via a background safety classifier (Sonnet 4.6)
 - Classifier reviews each action and allows/blocks automatically
 - **Different from Auto-Accept** (`Shift+Tab`): Auto Mode is intelligent, not blanket
 - **Allows**: Local file ops, dependency installs, read-only HTTP, pushing to current branch
 - **Blocks**: Downloading + executing code, production deploys, force pushes, IAM changes
-- **Requirements**: Team/Enterprise/API plan, Sonnet 4.6 or Opus 4.6
+- **Requirements**: Team / Enterprise / API plan, Sonnet 4.6 or Opus 4.6
 - Enable: `--enable-auto-mode` or cycle with `Shift+Tab`
+- **Replaces** `--dangerously-skip-permissions` as the recommended escape hatch (the old flag still works but is now legacy)
 
 </v-clicks>
 
@@ -1693,19 +1774,19 @@ claude --allowed-tools read,write,edit,task
 
 <v-clicks>
 
-- **Command not found** → Check PATH: `npm list -g @anthropic/claude-code`
-- **Permission denied** → Use correct npm prefix or sudo
-- **Windows users** → WSL is required (not native Windows)
+- **Command not found** → Check PATH: `which claude` (native) or `npm list -g @anthropic-ai/claude-code` (npm install)
+- **Permission denied** → Re-run the native installer; for npm, fix prefix or use sudo
+- **Windows users** → Use WinGet or run inside WSL 2 (note: `/sandbox` requires WSL 2, not native Windows or WSL 1)
 
 </v-clicks>
 
 ```bash
-# Preferred: Native binary installer
-curl -fsSL https://storage.googleapis.com/anthropic-releases/claude-cli/install.sh | bash
+# Recommended: native installer (auto-updates)
+curl -fsSL https://claude.ai/install.sh | bash
 
-# Legacy npm (deprecated but still works)
-npm uninstall -g @anthropic/claude-code
-npm install -g @anthropic/claude-code
+# Legacy npm (still works, no auto-update)
+npm uninstall -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code
 ```
 
 ---
@@ -1721,8 +1802,8 @@ npm install -g @anthropic/claude-code
 </v-clicks>
 
 ```bash
-# Alternative installation: Direct binary
-curl -fsSL https://storage.googleapis.com/anthropic-releases/claude-cli/install.sh | bash
+# Reinstall the native binary (auto-updates after install)
+curl -fsSL https://claude.ai/install.sh | bash
 ```
 
 ---
@@ -1785,7 +1866,7 @@ curl -fsSL https://storage.googleapis.com/anthropic-releases/claude-cli/install.
 | `/color` | Set prompt-bar color for session |
 | `/powerup` | Interactive feature lessons |
 
-**Removed**: `/tag`, `/vim` (use `/config`). **Deprecated**: `/output-style` (use `/config`)
+**Removed**: `/tag`, `/vim` (use `/config`).
 
 </v-clicks>
 

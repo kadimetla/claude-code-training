@@ -1,163 +1,143 @@
-# Custom Slash Commands for Claude Code
+# Skills and Custom Commands
 
-This document showcases powerful custom slash commands that can enhance your Claude Code workflow. These commands demonstrate how to create reusable, project-specific automation.
+> **As of Claude Code 2.1, custom commands have been merged into skills.**
+> A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and behave the same way. Existing `.claude/commands/` files keep working — but **skills are the recommended path** for new work.
 
-## Getting Started with Custom Commands
+This document showcases reusable workflow automation for Claude Code. New material teaches **skills**; the older `.claude/commands/` form appears at the end as a backwards-compatibility reference.
 
-Custom commands are stored in `~/.claude/commands/` as markdown files. Each file becomes a slash command that can be invoked with `/filename`.
+---
 
-### Setting Up Commands
+## Why Skills (and not just commands)
 
-1. Create the commands directory: `mkdir -p ~/.claude/commands`
-2. Add any of the commands below as `.md` files in that directory
-3. Use them with `/command-name` in Claude Code
+Skills add capabilities that flat command files can't have:
 
-## Available Commands
+- **Directory structure** — a skill is a folder (`SKILL.md` + supporting templates, scripts, examples) instead of a single file.
+- **Frontmatter for control** — invocation rules (`disable-model-invocation`, `user-invocable`), per-skill tool permissions (`allowed-tools`), forked-subagent execution (`context: fork`), path-based triggering (`paths`).
+- **Automatic loading** — Claude loads a skill when its `description` matches the conversation, even without an explicit `/skill-name` invocation.
+- **Live change detection** — adding or editing a skill takes effect within the current session.
+- **Argument substitution** — same `$ARGUMENTS`, `$0`, `$1` substitution as commands.
 
-### 📚 `/docs` - Documentation Generator
+If a command and a skill share a name, **the skill wins**.
+
+### Skill locations and precedence
+
+`Enterprise > Personal > Project`. Plugin skills are namespaced separately.
+
+| Scope       | Path                                          |
+| ----------- | --------------------------------------------- |
+| Enterprise  | managed settings                              |
+| Personal    | `~/.claude/skills/<skill-name>/SKILL.md`      |
+| Project     | `.claude/skills/<skill-name>/SKILL.md`        |
+| Plugin      | `<plugin>/skills/<skill-name>/SKILL.md`       |
+
+---
+
+## Skill Anatomy
+
+```
+~/.claude/skills/my-skill/
+├── SKILL.md          # Required: instructions with YAML frontmatter
+├── templates/        # Optional: reusable templates
+├── scripts/          # Optional: helper scripts
+└── reference/        # Optional: docs, schemas, examples
+```
+
+Minimal `SKILL.md`:
+
 ```markdown
+---
+name: docs
+description: Update README.md and CLAUDE.md to reflect the current state of the project.
+---
+
 Update both the README.md and CLAUDE.md files as appropriate.
-If either file does not exist, please create it. Generate the
-CLAUDE.md file as though the user invoked the init task.
-```
-**Use case:** Quickly generate or update project documentation
-
-### 🛡️ `/security-review` - Security Code Review
-```markdown
-# Security Code Review
-
-Review code for security issues:
-- SQL injection vulnerabilities
-- XSS prevention
-- Authentication/authorization flaws
-- Input validation gaps
-- Sensitive data exposure
-- Insecure cryptography
-```
-**Use case:** Comprehensive security analysis of your codebase
-
-### 🚀 `/onboard` - Codebase Onboarding Generator
-```markdown
-# Codebase Onboarding Generator
-1. Analyze project structure and key components
-2. Write findings to CODEBASE.md with architecture overview
-3. Convert analysis to PRESENTATION.md using Slidev format
-4. Include: setup instructions, key patterns, gotchas
-5. Run: npm run dev to view presentation
-
-Use professional tone, focus on practical insights.
-```
-**Use case:** Generate onboarding materials for new team members
-
-## Java-Specific Commands
-
-### ⚡ `/modernize-java` - Java Modernization
-```markdown
-# Modernize Java Code
-
-Update the selected code to use:
-- Records instead of POJOs
-- Switch expressions
-- Local variable type inference where helpful
-- Pattern matching where applicable
-- Virtual threads for I/O operations (if Java 21+)
-- Modern collection factory methods
-- Sequenced collections (if Java 21+)
-- Text blocks for multiline strings
-- Sealed classes if appropriate
-```
-**Use case:** Upgrade legacy Java code to modern language features
-
-### 🎯 `/spring-controller` - Spring REST Controller Generator
-```markdown
-# Create Spring REST Controller
-
-Generate a $ARGUMENTS REST controller with:
-- @RestController and @RequestMapping("/$ARGUMENTS")
-- CRUD endpoints (GET, POST, PUT, DELETE)
-- Proper HTTP status codes
-- Request/response DTOs for $ARGUMENTS
-- Validation annotations
-- OpenAPI documentation
-- Integration tests
-
-**Usage:** `/spring-controller users` creates UsersController
-```
-**Use case:** Rapidly scaffold complete REST controllers
-
-### 🔧 `/spring-service` - Spring Service Generator
-```markdown
-# Create Spring Service
-
-Create a new Spring Boot service class named $ARGUMENTS with:
-- @Service annotation
-- Constructor injection for $ARGUMENTS repository
-- Basic CRUD operations for $ARGUMENTS entity
-- Comprehensive logging
-- Exception handling
-- Unit tests with @MockitoBean and @MockitoSpyBean as necessary
-
-Use modern Java features and follow Spring best practices.
-```
-**Use case:** Generate service layer components with best practices
-
-## Creating Your Own Commands
-
-### Command Structure
-```markdown
-# Command Description
-
-Your instructions here...
-- Use bullet points for clarity
-- Include specific requirements
-- Reference $ARGUMENTS for parameters
-
-**Usage examples and notes**
+If either file does not exist, create it. Generate the
+CLAUDE.md file as though the user invoked the `/init` task.
 ```
 
-### Best Practices
-1. **Be Specific**: Clear, actionable instructions work best
-2. **Use Variables**: `$ARGUMENTS` gets replaced with command parameters
-3. **Include Context**: Mention frameworks, patterns, or standards to follow
-4. **Add Examples**: Show expected usage patterns
+### Useful frontmatter fields
 
-### Pro Tips
-- Commands can reference files, generate tests, and perform complex workflows
-- Use commands for repetitive tasks across multiple projects
-- Share useful commands with your team via version control
-- Start simple and iterate based on actual usage patterns
+| Field                       | What it does                                                                  |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| `name`                      | Skill name (becomes the slash command if `user-invocable`)                    |
+| `description`               | Used by Claude to decide when the skill is relevant — write this carefully    |
+| `user-invocable`            | If `true`, exposes `/<name>` for explicit invocation                          |
+| `disable-model-invocation`  | If `true`, the skill only runs when invoked explicitly (no auto-load)         |
+| `allowed-tools`             | Whitelist of tools this skill can use (e.g., `Read, Edit, Bash`)              |
+| `context: fork`             | Run in a forked subagent so the parent context isn't polluted                 |
+| `paths`                     | Glob patterns that trigger the skill when matching files are discussed        |
+| `model`                     | Force a specific model for this skill (e.g., `opus` for hard work)            |
+| `effort`                    | `low | medium | high` — control reasoning depth                               |
 
-## Exercise: Create Your First Command
+---
 
-Try creating a simple command for your workflow:
+## Showcase Skills
 
-1. `mkdir -p ~/.claude/commands`
-2. Create `test-generator.md`:
-   ```markdown
-   # Generate Test File
-   
-   Create comprehensive unit tests for the $ARGUMENTS class with:
-   - Setup and teardown methods
-   - Happy path and edge case tests  
-   - Mock dependencies where needed
-   - Follow project testing conventions
-   ```
-3. Use it: `/test-generator UserService`
+Each of these lives under `skills/<name>/SKILL.md` in this repo. Copy the directories you want into `~/.claude/skills/` (personal) or `.claude/skills/` (project) to use them.
 
-## Ready-to-Use Command Files
+### `/docs` — Documentation Generator
+Updates README.md and CLAUDE.md to reflect current project state. Useful at the end of a feature branch.
 
-All commands shown above are available as ready-to-use files in the `commands/` directory of this repository. Simply copy them to your `~/.claude/commands/` directory to start using them immediately.
+### `/security-review` — Security Code Review
+Walks the changed files (or the whole project) looking for SQL injection, XSS, auth/authz flaws, input validation gaps, sensitive data exposure, insecure cryptography. Path-triggered in this repo.
 
-### Quick Setup
+### `/onboard` — Codebase Onboarding Generator
+Analyzes structure and writes `CODEBASE.md` + a Slidev `PRESENTATION.md` for new team members.
+
+### `/modernize-java` — Java Modernization
+Updates Java code to records, switch expressions, pattern matching, virtual threads, sealed classes, text blocks, and modern collection factories. Path-triggered on `*.java`.
+
+### `/spring-controller <Entity>` — Spring REST Controller Scaffold
+Generates a `<Entity>Controller` with CRUD endpoints, DTOs, validation, OpenAPI docs, and integration tests.
+
+### `/spring-service <Entity>` — Spring Service Scaffold
+Generates a `<Entity>Service` with constructor injection, logging, exception handling, and unit tests with `@MockitoBean` / `@MockitoSpyBean`.
+
+---
+
+## Quick setup
+
 ```bash
-# Copy all commands to your Claude commands directory
-cp commands/*.md ~/.claude/commands/
+# Personal: skills available across all your projects
+mkdir -p ~/.claude/skills
+cp -r skills/* ~/.claude/skills/
+
+# Project: skills shared with your team via the repo
+mkdir -p .claude/skills
+cp -r skills/* .claude/skills/
 ```
+
+Skills hot-reload — edit a `SKILL.md` and the change takes effect in the current session.
+
+---
+
+## Best practices
+
+1. **Write a careful `description`** — this is what Claude matches against to decide if the skill is relevant. Vague descriptions don't auto-load.
+2. **Scope tools deliberately** — `allowed-tools` makes a skill safer to invoke and easier to reason about.
+3. **Use `context: fork` for noisy work** — refactoring, large reviews, anything that would otherwise dump 5,000 lines into your conversation.
+4. **Use `paths` for path-triggered relevance** — `paths: ["src/**/*.java"]` keeps a Java-modernization skill from activating on a Python file.
+5. **Keep `SKILL.md` short** — Claude loads it when relevant. Put bulky reference material in `reference/` and link from `SKILL.md`.
+
+---
+
+## Backwards compatibility: `.claude/commands/`
+
+The flat command form still works, with one caveat: it can't do anything skills can do beyond argument substitution. Use it for trivial one-liners or for compatibility with material written before 2026.
+
+```markdown
+# .claude/commands/fix.md
+Fix issue #$ARGUMENTS — investigate, propose a plan, then implement.
+```
+
+Usage: `/fix 1234` (project) or `/user:fix 1234` (personal commands require the `user:` prefix).
+
+This repo keeps **one** legacy command in `commands/` (`docs.md`) so students can see the old form alongside the new. Everything else has migrated to `skills/`.
+
+---
 
 ## Integration with Course Labs
 
-These commands can enhance the lab exercises:
-- **Lab 4-6**: Use custom commands during refactoring exercises
-- **Java Projects**: Demonstrate Spring-specific commands with certificate-service
-- **Security Focus**: Show security-review command with vulnerable code examples
-- **Documentation**: Use onboard command to analyze unfamiliar codebases
+- **Lab 5**: Use the `/modernize-java` and `/security-review` skills against the legacy refactor target.
+- **Lab 6**: Build a custom skill (with frontmatter that scopes tools and matches paths) and contrast it with a one-line `.claude/commands/` entry.
+- **Java demos**: Use `/spring-controller` and `/spring-service` against the `certificate-service` exercise.

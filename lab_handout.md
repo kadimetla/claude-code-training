@@ -14,10 +14,21 @@ This document contains hands-on exercises for learning to use Claude Code for pr
 
 ## Prerequisites
 
-- Claude Code installed and configured
-- API key set in environment: `export ANTHROPIC_API_KEY="your-key"`
+- Claude Code installed (`curl -fsSL https://claude.ai/install.sh | bash`, or Homebrew / WinGet — see slides)
+- An active subscription (Pro / Max / Team / Enterprise) **or** API credits via the Claude Console
 - Git repository access
 - Development environment for multiple languages (Python, JavaScript/TypeScript, Java)
+
+### Permission modes (background)
+
+You'll meet a few permission modes during the labs:
+
+- **Default** — Claude prompts before risky actions. Good for learning.
+- **Auto-Accept** (`Shift+Tab`) — blanket approval of write actions. Use when you trust the next few steps.
+- **Auto Mode** — Sonnet 4.6 classifier decides per action. Modern recommended escape hatch (replaces `--dangerously-skip-permissions`, which still works but is now legacy).
+- **`/sandbox`** — sandboxed shell for risky commands. **Note:** `/sandbox` requires WSL 2 — not available on native Windows or WSL 1.
+
+When restricting tools in headless or CI workflows, prefer `--disallowedTools` over `--allowedTools` — the allow-list flag may be ignored in `bypassPermissions` mode.
 
 ## Lab 0: Project Creation from Scratch
 
@@ -254,17 +265,27 @@ Continue with your chosen project, focusing on undocumented areas.
 ## Lab 5: Legacy Code Refactoring
 
 **Duration**: 15 minutes  
-**Goal**: Modernize legacy code using Claude Code assistance
+**Goal**: Modernize legacy code using Claude Code assistance, with a first taste of skills
 
 ### Setup
 
-Use the `exercises/java/shopping-service` (Grails/Groovy) project or any legacy code you have available.
+Use the `exercises/java/shopping-service` (Grails/Groovy) project or any legacy code you have available. Optionally install two skills from this repo so the modernization and security work are one slash command away:
+
+```bash
+# From the project root
+mkdir -p ~/.claude/skills
+cp -r skills/modernize-java skills/security-review ~/.claude/skills/
+```
 
 ### Exercises
 
-1. **Code modernization**:
+1. **Code modernization** (try the skill, then a freeform prompt):
    ```
-   Refactor this class to use modern Java features like records, switch expressions, and optional
+   /modernize-java
+   ```
+   Then, on a different file:
+   ```
+   Refactor this class to use modern Java features like records, switch expressions, and Optional
    ```
 
 2. **Spring Boot updates**:
@@ -282,7 +303,11 @@ Use the `exercises/java/shopping-service` (Grails/Groovy) project or any legacy 
    Review this code for performance issues and suggest optimizations
    ```
 
-5. **Security review**:
+5. **Security review** (try the skill — note it's read-only by `allowed-tools`):
+   ```
+   /security-review
+   ```
+   Compare with a freeform request:
    ```
    Review this controller for security vulnerabilities and suggest fixes
    ```
@@ -292,6 +317,7 @@ Use the `exercises/java/shopping-service` (Grails/Groovy) project or any legacy 
 - Learn systematic refactoring approaches
 - Understand modern development patterns
 - Practice security-focused code review
+- Experience how a skill's frontmatter (e.g., `allowed-tools: Read, Grep, Glob`) shapes its behavior
 
 [← Back to Table of Contents](#table-of-contents)
 
@@ -328,7 +354,7 @@ Navigate to the `exercises/python/weather-app` directory for this lab.
 
 #### Part B: Skills and Plugins (15 minutes)
 
-> **Note**: Skills (`.claude/skills/`) are the primary extensibility mechanism. Custom slash commands (`.claude/commands/`) remain as a lightweight alternative. Skills support YAML frontmatter for `effort`, `model`, `paths`, and more. Hot-reload — edit a SKILL.md and changes take effect immediately.
+> **Note**: As of Claude Code 2.1, **custom slash commands have been merged into skills**. `.claude/skills/<name>/SKILL.md` is the recommended form; `.claude/commands/<name>.md` still works but is the legacy form. If a command and a skill share a name, the skill wins. Skills support frontmatter for `paths`, `allowed-tools`, `context: fork`, `disable-model-invocation`, `user-invocable`, `model`, and `effort`. Hot-reload — edits take effect immediately. Precedence: `Enterprise > Personal > Project`; plugin skills are namespaced separately.
 
 3. **Explore Built-in Skills**:
    ```
@@ -476,7 +502,7 @@ Navigate to the `exercises/python/weather-app` directory for this lab.
    - Observe how MCP extends Claude's capabilities
    - Note the `mcp__` prefix on tool names
 
-#### Part F: CLAUDE.md and Custom Commands (5 minutes)
+#### Part F: CLAUDE.md, AGENTS.md, and Skills vs Commands (5 minutes)
 
 16. **CLAUDE.md creation**:
    ```
@@ -485,10 +511,19 @@ Navigate to the `exercises/python/weather-app` directory for this lab.
 
    Note that the built-in slash command `/init` creates the `CLAUDE.md` file, but you can simply ask Claude to create it.
 
-17. **Custom slash command**:
+17. **The AGENTS.md trap (and the bridge pattern)**:
    ```
-   Help me create a custom slash command called 'update-deps' for updating Python dependencies safely with backup and testing
+   This repo also has an AGENTS.md (Codex's convention). Claude Code does not natively read it. Update CLAUDE.md to reference @AGENTS.md so the cross-tool conventions are picked up. Explain what changed and why.
    ```
+
+   Observe how `@filepath` import keeps a single source of truth.
+
+18. **Skill vs. legacy command** (compare side-by-side):
+   ```
+   Help me create a skill called 'update-deps' under .claude/skills/update-deps/SKILL.md for updating Python dependencies safely. Use frontmatter to scope tools (Bash, Read, Edit) and trigger on requirements.txt and pyproject.toml. Then create the same workflow as a legacy .claude/commands/update-deps.md file and explain which capabilities the skill has that the command doesn't.
+   ```
+
+   This contrast — same automation, two forms — is the heart of the merge.
 
 #### Part G: Feature Enhancement with All Tools (5 minutes)
 
@@ -588,7 +623,7 @@ After completing this lab, you will:
 - Implement hooks for workflow automation
 - Configure and use MCP servers for extended capabilities
 - Create reusable project configurations with CLAUDE.md
-- Build custom slash commands for common workflows
+- Build skills (with optional `.claude/commands/` legacy form for contrast) for common workflows
 - Orchestrate multiple advanced features together
 - **Launch and coordinate Agent Teams for parallel work**
 - **Use worktree isolation for safe experimentation**
@@ -667,7 +702,7 @@ After completing these labs:
 
 1. **Practice regularly**: Use Claude Code for daily development tasks
 2. **Share with team**: Introduce colleagues to effective workflows
-3. **Customize**: Create project-specific CLAUDE.md files and slash commands
+3. **Customize**: Create project-specific CLAUDE.md files (with `@AGENTS.md` bridge if applicable) and skills
 4. **Iterate**: Refine your prompting techniques based on results
 5. **Stay updated**: Follow Claude Code updates and new features
 

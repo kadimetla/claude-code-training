@@ -20,7 +20,7 @@ By the end of this course, participants will be able to:
 - Generate comprehensive tests and documentation with minimal effort
 - Refactor legacy code using modern patterns and best practices
 - Integrate Claude Code into professional git workflows
-- Create custom workflows with CLAUDE.md files and slash commands
+- Create custom workflows with CLAUDE.md files and Skills
 - Apply advanced features like Plan Mode for complex development tasks
 
 ---
@@ -28,8 +28,8 @@ By the end of this course, participants will be able to:
 ## Prerequisites
 
 ### Required
-- Active Claude subscription (Pro, Max 5x, or Max 20x plan)
-- Claude Code installed and configured with API key
+- Active Claude subscription (Pro, Max 5x, Max 20x, Team, or Enterprise) **or** API credits via the Claude Console
+- Claude Code installed (`curl -fsSL https://claude.ai/install.sh | bash` or Homebrew / WinGet)
 - Command-line proficiency
 - Git workflow familiarity
 - Development environment with Python 3.x, Node.js, or Java 17+
@@ -47,9 +47,10 @@ By the end of this course, participants will be able to:
 *Getting productive immediately*
 
 **Topics:**
-- Installation verification and setup
-- Interface basics and operation modes (Command, Auto-Accept, Plan)
-- Pricing plans and cost management strategies
+- Installation verification and setup (native installer, Homebrew, WinGet, npm legacy)
+- Interface basics and operation modes (Command, Auto-Accept, Plan, Auto)
+- Subscription tiers (Pro / Max / Team / Enterprise) and cost management
+- Surfaces overview (CLI, Desktop *Code* tab, Web, IDE plugins, Slack / Chrome / iOS / GitHub Actions / GitLab)
 - Core capabilities overview
 
 **Hands-on Lab:**
@@ -131,23 +132,24 @@ By the end of this course, participants will be able to:
 *Power user capabilities and workflow automation*
 
 **Topics:**
-- Plan Mode for complex changes
-- CLAUDE.md project memory and customization
-- Custom slash commands for team workflows
-- Extended thinking for architectural decisions
+- Plan Mode and Output Styles for complex / pedagogical work
+- CLAUDE.md project memory + the AGENTS.md bridge pattern
+- **Skills** as the modern path for team workflows (custom commands now merged into skills)
+- Effort levels and extended thinking for architectural decisions
 - Context management and conversation resumption
+- Auto Mode as the recommended escape hatch (replaces `--dangerously-skip-permissions`)
 - Working with images (UI mockups, error screenshots, diagrams)
 
 **Hands-on Lab:**
 - **Lab 6: Advanced Workflows** (30 min)
   - Use Plan Mode for complex feature additions
-  - Create CLAUDE.md with project standards
-  - Build custom slash commands for common tasks
+  - Create CLAUDE.md with project standards (and the AGENTS.md bridge if applicable)
+  - Build a Skill (with optional `.claude/commands/` backwards-compatibility demo)
   - Implement comprehensive application improvements
   - Practice the complete development cycle with git integration
 
 **Instructor Demos:**
-- Custom command showcase for Java modernization, Spring scaffolding, security reviews
+- Skills showcase: Java modernization, Spring scaffolding, security reviews — and the legacy `.claude/commands/` form for contrast
 - Statusline configuration for persistent context
 - Image analysis workflows (wireframe to code)
 - Git worktrees for parallel development sessions
@@ -203,21 +205,23 @@ Participants will leave the course with:
 
 1. **Immediate Productivity:** Working knowledge of Claude Code for daily development tasks
 2. **Real Examples:** Completed exercises across multiple technology stacks
-3. **Reusable Configurations:** Custom CLAUDE.md files and slash commands
+3. **Reusable Configurations:** Custom CLAUDE.md files and Skills
 4. **Best Practices:** Professional workflows for AI-assisted development
 5. **Team Resources:** Materials to share with colleagues for consistent adoption
 
 ---
 
-## Pricing Plans Overview
+## Subscription Tiers Overview
 
 *For participant planning purposes*
 
-- **Pro Plan** ($20/month): ~10-40 prompts per 5 hours, Sonnet 4 only
-- **Max Plan 5x** ($100/month): ~50-200 prompts per 5 hours, Sonnet or Opus 4
-- **Max Plan 20x** ($200/month): ~200-800 prompts per 5 hours, Sonnet or Opus 4
+- **Pro** ($20/mo): ~10-40 prompts per 5 hours, Sonnet 4.6
+- **Max 5x** ($100/mo): ~50-200 prompts per 5 hours, Sonnet 4.6 or Opus 4.6
+- **Max 20x** ($200/mo): ~200-800 prompts per 5 hours, Sonnet 4.6 or Opus 4.6
+- **Team**: shared seats, central billing, admin controls
+- **Enterprise**: SSO, audit, custom retention; supports Bedrock / Vertex / Foundry routing
 
-*Note: Limits reset every 5 hours. For intensive training days, Max plans recommended.*
+*Limits reset every 5 hours. For intensive training days, Max plans (or above) recommended. API path with pre-paid credits via the Claude Console is also supported.*
 
 ---
 
@@ -270,7 +274,7 @@ This half-day course can be tailored to your organization's specific needs:
 - **Language/Framework Focus:** Emphasize Python, JavaScript, Java, or other stacks
 - **Legacy Modernization Track:** Extra focus on updating older codebases
 - **Security & Compliance:** Additional coverage of permission controls and security workflows
-- **Team Workflow Integration:** Custom slash commands specific to your team's processes
+- **Team Workflow Integration:** Skills (and legacy `.claude/commands/`) specific to your team's processes
 - **Follow-up Sessions:** Advanced workshops or consultation for implementation
 
 ---

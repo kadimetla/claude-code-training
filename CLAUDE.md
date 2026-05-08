@@ -2,6 +2,14 @@
 
 This project contains comprehensive training materials for teaching Claude Code to professional software developers. The course emphasizes practical, hands-on learning with real-world scenarios.
 
+## Cross-tool conventions
+
+Claude Code does not natively read `AGENTS.md` (the convention used by Codex and other tools). To pick up shared cross-tool conventions in this repo, this file imports it explicitly:
+
+@AGENTS.md
+
+This is the recommended bridge pattern when a project needs to expose the same guidance to both Claude Code and AGENTS.md-aware tools without duplicating content.
+
 ## Project Structure & Standards
 
 ### Core Course Materials
@@ -20,10 +28,12 @@ This project contains comprehensive training materials for teaching Claude Code 
   - `certificate-service`: Modern Spring Boot application with PDF generation
   - `shopping-service`: Legacy Grails/Groovy application for modernization exercises
 
-### Custom Commands Integration
-- **`custom-commands.md`**: Comprehensive showcase of workflow automation commands
-- **`commands/`**: Ready-to-use command files for immediate copying to `~/.claude/commands/`
-- Commands cover Java modernization, Spring scaffolding, security reviews, documentation generation, and onboarding automation
+### Skills and Custom Commands Integration
+- **`custom-commands.md`**: Skills-first walkthrough with a backwards-compat callout for `.claude/commands/`
+- **`skills/`**: Ready-to-copy skill directories migrated from the older command form. Each demonstrates a different frontmatter capability (paths, allowed-tools, context: fork, disable-model-invocation, $ARGUMENTS).
+- **`commands/`**: One legacy `.claude/commands/` example (`docs.md`) preserved so students can compare old and new forms.
+- **`skills-and-plugins/`**: Larger teaching-library skills used during Lab 6 (api-documentation-skill, spring-boot-skill, security-review-skill, plus a plugin example).
+- Skills cover Java modernization, Spring scaffolding, security reviews, documentation generation, and onboarding automation.
 
 ## Development Workflow
 
@@ -50,11 +60,11 @@ pnpm exec playwright install
 - **Labs 1-3**: Foundation skills (exploration, testing, documentation)
 - **Labs 4-6**: Advanced workflows (refactoring, Plan Mode, custom commands)
 
-### Custom Commands Teaching Integration
-- **Demonstration**: Showcase commands during Lab 6 advanced workflows
-- **Hands-on Practice**: Students copy and customize commands for their workflows  
-- **Real-world Application**: Use Java commands with certificate-service, security commands with vulnerable examples
-- **Team Sharing**: Demonstrate how teams can standardize workflows through shared commands
+### Skills Teaching Integration
+- **Demonstration**: Showcase skills during Lab 6 advanced workflows; show legacy `commands/docs.md` for contrast
+- **Hands-on Practice**: Students copy a skill from `skills-and-plugins/` and write their own with deliberate frontmatter (paths, allowed-tools, etc.)
+- **Real-world Application**: Use Java skills with certificate-service, security skills with vulnerable examples
+- **Team Sharing**: Demonstrate how teams standardize workflows through shared skills (project scope) or plugins
 
 ## Teaching Philosophy
 
