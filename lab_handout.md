@@ -324,12 +324,32 @@ cp -r skills/modernize-java skills/security-review ~/.claude/skills/
 
 ## Lab 6: Advanced Workflows
 
-**Duration**: 60 minutes
+**Duration**: ~63 minutes
 **Goal**: Master advanced Claude Code features including Plan Mode, Skills, Plugins, Output Styles, Hooks, MCP, Agent Teams, and Surfaces
 
 ### Setup
 
 Navigate to the `exercises/python/weather-app` directory for this lab.
+
+**One-time prerequisite for Part B**: install osquery (used for the skill-wrapping exercise). It's free, cross-platform, and ~30 seconds to install:
+
+```bash
+# macOS
+brew install --cask osquery
+
+# Linux (Debian/Ubuntu — see https://osquery.io/downloads for others)
+curl -L https://pkg.osquery.io/deb/pubkey.gpg | sudo apt-key add -
+sudo add-apt-repository 'deb [arch=amd64] https://pkg.osquery.io/deb deb main'
+sudo apt-get update && sudo apt-get install osquery
+
+# Windows
+# Download the MSI from https://osquery.io/downloads
+```
+
+Verify with:
+```bash
+osqueryi --json "SELECT version FROM osquery_info;"
+```
 
 ### Exercises
 
@@ -353,9 +373,17 @@ Navigate to the `exercises/python/weather-app` directory for this lab.
    - **Effort levels**: `/effort low|medium|high` controls reasoning depth
    - **Keyboard shortcuts**: `Alt+P` switches models mid-conversation
 
-#### Part B: Skills and Plugins (15 minutes)
+#### Part B: From Skill to Plugin (18 minutes)
 
 > **Note**: As of Claude Code 2.1, **custom slash commands have been merged into skills**. `.claude/skills/<name>/SKILL.md` is the recommended form; `.claude/commands/<name>.md` still works but is the legacy form. If a command and a skill share a name, the skill wins. Skills support frontmatter for `paths`, `allowed-tools`, `context: fork`, `disable-model-invocation`, `user-invocable`, `model`, and `effort`. Hot-reload — edits take effect immediately. Precedence: `Enterprise > Personal > Project`; plugin skills are namespaced separately.
+
+> **The decision ladder.** Before you build anything, name what you're building:
+> - **Prompt** — work happens once.
+> - **Skill** — work happens repeatedly, the same way each time. A reusable operating procedure, not a saved prompt. Most installable capabilities you'll use are single skills.
+> - **Plugin** — *packaging* for one or more skills. In practice, most plugins bundle a **coherent suite** from one author (Anthropic's `document-skills` plugin contains 16 skills: xlsx, pdf, docx, pptx, canvas-design, brand-guidelines, …). A single-skill plugin is also valid — usually because the distribution channel (an official marketplace) requires the plugin wrapper.
+> - **MCP / hook** — orthogonal layers for live access (MCP) or deterministic checks (hooks).
+>
+> This part climbs the first two rungs: build a skill, then wrap it as a plugin.
 
 3. **Explore Built-in Skills**:
    ```
@@ -364,34 +392,87 @@ Navigate to the `exercises/python/weather-app` directory for this lab.
    - The xlsx skill will activate automatically
    - Observe how skills load progressively
 
-4. **Install and Test a Custom Skill**:
+4. **Build a skill that wraps a CLI tool — osquery** (~7 minutes):
+
+   *Why osquery?* It's a system-diagnostics tool whose native interface is SQL against system tables (`processes`, `memory_info`, `interface_addresses`, etc.). Almost nobody memorizes the schema. A skill turns "why is my fan running?" into the right query and a plain-English answer. The same pattern works for any CLI tool with non-obvious syntax — `kubectl`, `aws`, `gh api`, `jq`, `ffmpeg`, `psql`.
+
+   In your project, ask Claude to scaffold the skill:
+   ```
+   Help me build a skill at .claude/skills/osquery/SKILL.md that wraps osqueryi.
+
+   Frontmatter:
+   - allowed-tools: Bash
+   - description should trigger on questions like "why is my computer slow",
+     "what's using my CPU", "what's using memory", "fan is running hot",
+     "what processes are running"
+
+   Body should:
+   - Tell Claude to run `osqueryi --json "<SQL>"` for structured output
+   - Include 4-5 example natural-language → SQL mappings against real tables
+     (processes, memory_info, interface_addresses, system_info)
+   - Tell Claude to interpret the JSON result in plain English
+   ```
+
+   Test it from a fresh question (don't mention osquery in the prompt — let the skill description trigger):
+   ```
+   What's hammering my CPU right now?
+   ```
+   - The skill should activate automatically based on its description
+   - Claude runs an osquery query and explains the result
+
+   *Reference implementation* (in case you want to compare or got stuck): `skills-and-plugins/osquery-plugin/skills/osquery/SKILL.md` in this repo.
+
+5. **Wrap your skill as a plugin** (~8 minutes):
+
+   *Why?* You're learning the mechanics here — manifest layout, namespacing, the `--plugin-dir` test loop — so that when you build a *suite* of related skills (the dominant real-world case), you already know how to package them. A single-skill plugin is also useful when you want versioning or a marketplace listing for one capability.
+
+   Create the plugin scaffold (outside any one project — plugins are portable):
    ```bash
-   # Copy example skill to your local skills directory
-   # (Run from the claude-code-training project root)
-   cp -r skills-and-plugins/api-documentation-skill ~/.claude/skills/
+   mkdir -p ~/osquery-plugin/.claude-plugin
+   mkdir -p ~/osquery-plugin/skills/osquery
+   cp .claude/skills/osquery/SKILL.md ~/osquery-plugin/skills/osquery/SKILL.md
    ```
 
-   Then ask:
-   ```
-   Generate comprehensive API documentation for the weather app's REST endpoints
-   ```
-   - The API Documentation skill should activate
-   - Review the generated documentation format
-
-5. **Create Your Own Skill**:
-   ```
-   Help me create a custom skill for Python Flask best practices that includes:
-   - Constructor injection patterns
-   - Error handling conventions
-   - Logging standards
-   - Testing requirements
-   Save it to ~/.claude/skills/flask-best-practices/
+   Create `~/osquery-plugin/.claude-plugin/plugin.json`:
+   ```json
+   {
+     "name": "osquery-tools",
+     "description": "Natural-language system diagnostics via osquery",
+     "version": "0.1.0",
+     "author": { "name": "Your Name" }
+   }
    ```
 
-6. **Explore Plugins** (Discussion):
-   - Review `skills-and-plugins/plugin-examples/team-standards-plugin.md` (from project root)
-   - Discuss how plugins bundle commands, skills, hooks, and MCP servers
-   - Understand use cases for team-wide plugin distribution
+   > **Manifest rules** (the boring part that makes the good part work):
+   > - The manifest **must** live at `.claude-plugin/plugin.json` — *not* at the plugin root.
+   > - Skills go at `<plugin-root>/skills/<name>/SKILL.md` — *not* inside `.claude-plugin/`.
+   > - Only `name` is required. `description`, `version`, and `author` are recommended.
+
+   Test it without installing — start a fresh Claude Code session pointed at the plugin directory:
+   ```bash
+   claude --plugin-dir ~/osquery-plugin
+   ```
+
+   In the new session, run `/help` and look for your skill. **It will be namespaced**: `/osquery-tools:osquery`, not bare `/osquery`. Plugin skills are *always* namespaced as `<plugin-name>:<skill-name>` to prevent collisions. That namespace is the `name` field in `plugin.json`.
+
+   Now ask the same diagnostic question in natural language:
+   ```
+   What's hammering my CPU right now?
+   ```
+   The skill auto-loads from its description, exactly like the standalone version. The behavior is identical; **what changed is the packaging**.
+
+   *Iteration tip*: edit `SKILL.md` and run `/reload-plugins` — no restart needed.
+
+6. **Where the plugin grows from here** (~2 minute discussion):
+   - **The dominant pattern is multi-skill bundling.** The plugin you just built has one skill, which is the *minor* mode. Look at `/help` in any session that has plugins installed: you'll typically see plugin-namespaced groups like `document-skills:xlsx`, `document-skills:pdf`, `document-skills:docx`, … (16 skills in that one plugin); `autoresearch:plan`, `autoresearch:debug`, `autoresearch:fix`, … (10 skills). When you have two or three related osquery-style wrappers — say one for `osqueryi`, one for `kubectl`, one for `aws` — that's the natural moment to bundle them under one plugin (`cli-wrappers`, maybe).
+   - When **other people** need it → push the plugin folder to a git repo, then register it in a [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces).
+   - When a skill needs **live external context** (e.g., reading from a monitoring system or ticketing tool) → add an MCP server config inside the plugin (`.mcp.json` at the plugin root).
+   - When a step has to be **deterministic** (e.g., always block a query that touches sensitive tables) → add a hook (`hooks/hooks.json` at the plugin root).
+
+   Reference for the multi-layer case: `skills-and-plugins/plugin-examples/team-standards-plugin.md`.
+
+**Takeaway exercise** (do after class):
+> Pick a CLI tool whose syntax you don't enjoy memorizing — `kubectl`, `aws`, `gh api`, `jq`, `ffmpeg`, `psql`. Wrap it as a skill following the osquery pattern. If your team would use it, wrap that skill as a plugin.
 
 #### Part C: Output Styles (5 minutes)
 

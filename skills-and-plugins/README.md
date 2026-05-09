@@ -15,7 +15,11 @@ skills-and-plugins/
 │   └── SKILL.md
 ├── security-review-skill/              # Example: OWASP-aligned security analysis
 │   └── SKILL.md
-└── plugin-examples/                    # Example plugin configurations
+├── osquery-plugin/                     # Reference plugin for Lab 6 Part B
+│   ├── .claude-plugin/plugin.json     #   (skill → plugin walkthrough)
+│   ├── skills/osquery/SKILL.md
+│   └── README.md
+└── plugin-examples/                    # Larger plugin example (multi-component)
     └── team-standards-plugin.md
 ```
 
@@ -63,12 +67,15 @@ The `plugin-examples/` directory shows how to structure plugins for team distrib
 
 ## Lab Exercises
 
-In Lab 6 students will:
+In Lab 6 Part B students will:
 
-1. Install and test a pre-built skill (`api-documentation-skill`)
-2. Create their own custom skill with deliberate frontmatter
-3. Understand the three-tier loading system (metadata → instructions → resources)
-4. Compare skills against the legacy `.claude/commands/` form (using `../commands/docs.md`)
+1. See the **decision ladder**: prompt → skill → plugin → MCP/hook
+2. Build a skill that wraps a CLI tool (`osqueryi`) — the wrapper pattern
+3. Wrap that skill as a plugin and test it with `claude --plugin-dir`
+4. Discuss when a plugin grows further (MCP, hooks, marketplace)
+
+Reference implementations: `osquery-plugin/` (single-skill plugin) and
+`plugin-examples/team-standards-plugin.md` (multi-component plugin).
 
 ## Resources
 

@@ -1,179 +1,157 @@
-# Team Standards Plugin Example
+# Team Standards Plugin (multi-component reference)
 
-This document demonstrates how to structure a plugin for team-wide distribution.
+This document shows what a real team-distribution plugin looks like — one that
+bundles **several skills** plus hooks, MCP servers, and a custom subagent into
+a single installable package. It's the natural next step after the single-skill
+osquery plugin from Lab 6 Part B.
 
-## Plugin Structure
+> **Why a multi-component plugin?** This is the dominant real-world pattern.
+> Anthropic's `document-skills` plugin ships ~16 skills under one namespace;
+> `autoresearch` ships ~10. When a team has a coherent suite of automations to
+> standardize, the right artifact is one plugin with several skills — not
+> several separate plugins.
 
-A Claude Code plugin is a package that can contain:
-- Custom slash commands
-- Agent configurations
-- Hook scripts
-- MCP server configurations
-- Multiple skills bundled together
-- Shared templates and resources
+---
 
-## Example Plugin: "Acme Corp Standards"
-
-### Directory Structure
+## Directory layout
 
 ```
 acme-corp-standards/
-├── plugin.json                     # Plugin metadata
-├── commands/                       # Custom slash commands
-│   ├── service.md                 # Generate Spring Boot service
-│   ├── controller.md              # Generate REST controller
-│   └── repository.md              # Generate JPA repository
-├── skills/                        # Custom skills
-│   ├── spring-boot-best-practices/
+├── .claude-plugin/
+│   └── plugin.json                # Manifest (only required file)
+├── skills/                        # Auto-discovered at plugin root
+│   ├── spring-controller/
+│   │   └── SKILL.md
+│   ├── spring-service/
 │   │   └── SKILL.md
 │   └── acme-api-standards/
 │       └── SKILL.md
-├── hooks/                         # Hook scripts
-│   ├── pre-commit-validation.sh
-│   └── security-check.sh
-├── mcp/                           # MCP server configs
-│   └── internal-apis.json
-└── templates/                     # Shared templates
-    ├── service-template.java
-    ├── controller-template.java
-    └── test-template.java
+├── agents/                        # Custom subagents (optional)
+│   └── security-reviewer.md
+├── hooks/
+│   └── hooks.json                 # Event handlers (optional)
+├── .mcp.json                      # MCP server config (optional)
+├── settings.json                  # Default settings (optional)
+└── README.md
 ```
 
-### plugin.json
+**Two rules people get wrong:**
+
+1. The manifest **must** live at `.claude-plugin/plugin.json` — *not* at the plugin root.
+2. Component directories (`skills/`, `agents/`, `hooks/`, `commands/`) live at the **plugin root** — *not* inside `.claude-plugin/`.
+
+Component directories are **auto-discovered**. You do not list them in the
+manifest.
+
+---
+
+## The manifest: `.claude-plugin/plugin.json`
 
 ```json
 {
   "name": "acme-corp-standards",
+  "description": "Acme Corporation development standards: Spring scaffolding, API conventions, security review",
   "version": "1.0.0",
-  "description": "Acme Corporation development standards and tools",
-  "author": "Acme Engineering Team",
+  "author": {
+    "name": "Acme Engineering"
+  },
   "homepage": "https://github.com/acme/claude-plugins",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/acme/claude-plugins"
-  },
-  "commands": [
-    "service",
-    "controller",
-    "repository"
-  ],
-  "skills": [
-    "spring-boot-best-practices",
-    "acme-api-standards"
-  ],
-  "hooks": {
-    "preCommit": "hooks/pre-commit-validation.sh",
-    "preToolUse": {
-      "Write": "hooks/security-check.sh"
-    }
-  },
-  "mcpServers": [
-    {
-      "name": "acme-internal-apis",
-      "config": "mcp/internal-apis.json"
-    }
-  ],
-  "settings": {
-    "outputStyle": "acme-standard",
-    "statusline": {
-      "items": [
-        {"type": "git_branch"},
-        {"type": "custom", "command": "echo '[Acme]'"}
-      ]
-    }
-  }
+  "license": "MIT"
 }
 ```
 
-### Example Command: commands/service.md
+Only `name` is required. The `name` field becomes the **skill namespace**: a
+skill named `spring-controller` inside this plugin is invoked as
+`/acme-corp-standards:spring-controller`. Plugin skills are *always* namespaced
+to prevent collisions across plugins.
 
-```markdown
-# Service Generator
+---
 
-Create a new Spring Boot service class for the $ARGUMENTS entity.
+## Skills: the heart of the plugin
 
-Requirements:
-- Use constructor injection with @RequiredArgsConstructor
-- Include comprehensive JavaDoc
-- Add @Transactional where appropriate
-- Generate corresponding test class with @ExtendWith(MockitoExtension.class)
-- Follow Acme package naming conventions
-- Include audit logging for all data modifications
-```
-
-### Example Skill: skills/acme-api-standards/SKILL.md
+Each skill is a directory with `SKILL.md`. Example:
 
 ```markdown
 ---
-name: Acme API Standards
-description: Enforce Acme Corporation API development standards
+name: acme-api-standards
+description: Enforce Acme API conventions — URL versioning, response envelope, error codes, request IDs. Use when reviewing API code or generating new endpoints.
+allowed-tools: Read, Edit, Grep
 ---
 
 # Acme API Standards
 
-## API Versioning
-All APIs must use URL-based versioning: `/api/v1/resource`
+## Versioning
+All APIs use URL-based versioning: `/api/v1/resource`.
 
-## Response Format
-All responses must follow this structure:
+## Response envelope
+```json
+{ "data": {...}, "meta": {"timestamp": "...", "version": "v1"}, "errors": [] }
+```
+
+## Error codes
+- `ACME-1001`: authentication failed
+- `ACME-2001`: resource not found
+- `ACME-3001`: validation failed
+
+## Required headers
+- `X-Acme-Request-Id` on every response
+- Correlation ID propagated for distributed tracing
+```
+
+The `description` is the **trigger surface** — write it carefully. Claude
+auto-loads the skill when the description matches the conversation.
+
+---
+
+## Hooks: `hooks/hooks.json`
+
+Hooks are registered lifecycle handlers. Use them for steps that **must** be
+deterministic — security checks, format enforcement, audit logging — that you
+don't want to depend on the model remembering.
 
 ```json
 {
-  "data": { },
-  "meta": {
-    "timestamp": "2024-01-15T10:30:00Z",
-    "version": "v1"
-  },
-  "errors": []
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/security-check.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/audit-log.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
-## Error Handling
-Use Acme standard error codes:
-- ACME-1001: Authentication failed
-- ACME-2001: Resource not found
-- ACME-3001: Validation failed
+Event types include `PreToolUse`, `PostToolUse`, `PostToolUseFailure`,
+`SessionStart`, `SessionEnd`, `SubagentStart`, `TaskCreated`, `FileChanged`.
+Hook types include `command`, `http`, `mcp_tool`, `prompt`, and `agent`.
 
-## Monitoring
-All endpoints must include:
-- Request ID header: X-Acme-Request-Id
-- Correlation ID for distributed tracing
-- Metrics reporting to Acme monitoring system
-```
+The `${CLAUDE_PLUGIN_ROOT}` variable resolves to the installed plugin's
+directory — use it instead of relative paths so hooks work regardless of where
+the plugin is installed from.
 
-### Example Hook: hooks/pre-commit-validation.sh
+---
 
-```bash
-#!/bin/bash
-# Pre-commit validation hook for Acme standards
+## MCP servers: `.mcp.json`
 
-# Check for forbidden patterns
-if git diff --cached | grep -i "TODO\|FIXME\|HACK"; then
-    echo "ERROR: Found TODO/FIXME/HACK in staged files"
-    echo "Please resolve before committing"
-    exit 1
-fi
-
-# Verify no hardcoded secrets
-if git diff --cached | grep -iE "password|secret|api[_-]?key" | grep -v "# pragma: allowlist secret"; then
-    echo "ERROR: Potential hardcoded secret detected"
-    echo "Use environment variables or add '# pragma: allowlist secret' if false positive"
-    exit 1
-fi
-
-# Run tests
-./mvnw test
-if [ $? -ne 0 ]; then
-    echo "ERROR: Tests failed"
-    exit 1
-fi
-
-echo "✓ Pre-commit validation passed"
-exit 0
-```
-
-### Example MCP Config: mcp/internal-apis.json
+If the plugin's skills need live access to external systems (an internal API,
+a ticketing tool, a database), bundle the MCP server config:
 
 ```json
 {
@@ -189,121 +167,164 @@ exit 0
 }
 ```
 
-## Plugin Distribution
+Pass credentials via environment variables, not CLI args. For values the user
+must supply at install time, use the `userConfig` field in `plugin.json` —
+Claude Code will prompt for them on enable instead of requiring users to
+hand-edit `settings.json`.
 
-### Internal Marketplace
+---
 
-For enterprise teams, configure a private marketplace:
+## Subagents: `agents/<name>.md`
 
-**~/.claude/settings.json**:
+Custom subagents ship as Markdown files with frontmatter. Useful for focused
+tasks the team wants standardized — security review, code review, release
+notes — that benefit from running in their own context with their own tool
+restrictions.
+
+```markdown
+---
+name: security-reviewer
+description: Reviews code for OWASP Top 10 issues, secret leakage, and Acme-specific security policy violations.
+model: opus
+tools: Read, Grep, Glob, Bash
+---
+
+# Acme Security Reviewer
+
+When reviewing code, check for:
+1. SQL injection, XSS, CSRF
+2. Hardcoded secrets or credentials (never commit)
+3. Insecure cryptography (no MD5, SHA-1 for security purposes)
+4. Missing input validation
+5. Acme policy: PII fields must be encrypted at rest, audit-logged on access
+...
+```
+
+For security reasons, plugin-shipped agents do **not** support `hooks`,
+`mcpServers`, or `permissionMode` in their frontmatter.
+
+---
+
+## Default settings: `settings.json`
+
+The plugin can ship default settings that apply when it's enabled. **Only two
+keys are currently supported**: `agent` (activates one of the plugin's custom
+agents as the main thread) and `subagentStatusLine`.
+
 ```json
 {
-  "extraKnownMarketplaces": [
+  "agent": "security-reviewer"
+}
+```
+
+Unknown keys are silently ignored. If you want output style or status line
+customization, ship those as separate skills or instruct users to configure
+them in their own settings.
+
+---
+
+## Distribution: the marketplace
+
+To share the plugin with the team, add a `marketplace.json` to a separate
+catalog repo (or the same repo, in a different directory):
+
+```json
+{
+  "name": "acme-internal",
+  "owner": {
+    "name": "Acme Engineering",
+    "url": "https://acme.corp/engineering"
+  },
+  "plugins": [
     {
-      "name": "Acme Internal",
-      "url": "https://plugins.acme.corp/marketplace.json"
+      "name": "acme-corp-standards",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/acme/claude-plugins.git",
+        "path": "./acme-corp-standards"
+      }
     }
   ]
 }
 ```
 
-### Installation
+The marketplace file lives at `.claude-plugin/marketplace.json` in the catalog
+repo's root.
 
-Team members install via:
+### Team installation
+
 ```bash
-/plugin install acme-corp-standards
+# Add the marketplace once per machine
+/plugin marketplace add acme-corp/claude-plugins
+
+# Install the plugin
+/plugin install acme-corp-standards@acme-internal
+
+# Or pin to project scope (writes to .claude/settings.json so the team gets it)
+claude plugin install acme-corp-standards@acme-internal --scope project
 ```
 
-Or add to project `.claude/settings.json`:
+To make the marketplace appear automatically without users running
+`marketplace add`, ship `extraKnownMarketplaces` in managed enterprise
+settings:
+
 ```json
 {
-  "plugins": {
-    "acme-corp-standards": {
-      "enabled": true,
-      "version": "1.0.0"
+  "extraKnownMarketplaces": {
+    "acme-internal": {
+      "source": {
+        "type": "git",
+        "url": "https://github.com/acme/claude-plugins.git"
+      }
     }
   }
 }
 ```
 
-## Benefits
-
-1. **Consistency**: Entire team follows same standards
-2. **Onboarding**: New developers get tools immediately
-3. **Quality**: Automated checks enforce best practices
-4. **Efficiency**: Reusable commands and templates
-5. **Integration**: Connect to internal tools via MCP
-
-## Plugin Management Commands
+### Plugin management
 
 ```bash
-# Install plugin
-/plugin install acme-corp-standards
-
-# List installed plugins
-/plugin list
-
-# Enable/disable plugin
+/plugin list                              # List installed plugins
 /plugin enable acme-corp-standards
 /plugin disable acme-corp-standards
-
-# Update plugin
-/plugin update acme-corp-standards
-
-# Browse marketplace
-/plugin marketplace
+/plugin marketplace update                # Refresh catalog
+/plugin validate                          # Validate plugin structure
 ```
 
-## Version Control
+---
 
-Plugin configurations should be version controlled:
+## Local development loop
+
+Don't push to a marketplace until the plugin works. Develop locally:
 
 ```bash
-# Project-level (committed to repo)
-.claude/
-├── settings.json          # Plugin configuration
-└── plugin-lock.json       # Version pinning
-
-# User-level (not committed)
-~/.claude/
-└── settings.json          # Personal plugin preferences
+claude --plugin-dir ./acme-corp-standards
 ```
 
-## Best Practices
+Edit any file, then run `/reload-plugins` in the session to pick up changes
+without restarting.
 
-1. **Version pinning**: Lock plugin versions in projects
-2. **Documentation**: Include README with plugin usage
-3. **Testing**: Test plugins before rolling out to team
-4. **Versioning**: Use semantic versioning for changes
-5. **Changelog**: Maintain detailed changelog
-6. **Support**: Provide team support channel
+---
 
-## Example Use Cases
+## When this pattern fits
 
-### For Java/Spring Teams
-- Spring Boot scaffolding commands
-- Microservice generation templates
-- Security review skills
-- Integration test generators
+Use a multi-component plugin when **all** of these apply:
 
-### For DevOps Teams
-- Infrastructure-as-code templates
-- Deployment automation commands
-- Monitoring setup skills
-- CI/CD pipeline generators
+- The team has 2+ related skills that should travel together
+- At least one skill needs deterministic enforcement (→ hooks) or live system access (→ MCP)
+- The configuration should live in version control, not in each developer's `~/.claude/`
 
-### For Frontend Teams
-- React component generators
-- TypeScript best practices skills
-- Accessibility check hooks
-- Bundle size monitoring
+If you only have one skill and no hooks/MCP, **a single-skill plugin is fine**
+(see `skills-and-plugins/osquery-plugin/`). If you don't need to share across
+projects yet, **a plain `.claude/skills/` directory is fine** — don't add
+plugin scaffolding before it's earning its keep.
 
-## Creating Your Own Plugin
+---
 
-1. **Define structure**: Use example above as template
-2. **Add commands**: Create .md files in commands/
-3. **Include skills**: Add SKILL.md files in skills/
-4. **Configure hooks**: Add validation scripts
-5. **Test locally**: Install and verify functionality
-6. **Document**: Write clear usage instructions
-7. **Distribute**: Share via marketplace or git repository
+## See also
+
+- `skills-and-plugins/osquery-plugin/` — the simplest possible plugin (one skill, no extras)
+- `glossary.md` — the decision ladder and definitions for every term used here
+- [Claude Code plugins docs](https://code.claude.com/docs/en/plugins)
+- [Plugin marketplaces docs](https://code.claude.com/docs/en/plugin-marketplaces)
+- [Plugins reference](https://code.claude.com/docs/en/plugins-reference)

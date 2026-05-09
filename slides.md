@@ -889,6 +889,28 @@ backgroundSize: cover
 
 ---
 
+# The Decision Ladder
+
+<v-clicks>
+
+Before you build anything, name what you're building:
+
+| If... | You have a... | Lives at |
+|-------|---------------|----------|
+| The work happens **once** | **Prompt** | the conversation |
+| Work repeats the same way each time | **Skill** | `.claude/skills/<name>/SKILL.md` |
+| A coherent suite needs to ship | **Plugin** | `<plugin>/.claude-plugin/plugin.json` |
+| The agent needs **live access** to a system | **MCP server** | `.mcp.json` (or inside a plugin) |
+| A step must be **deterministic** | **Hook** | `settings.json` (or plugin `hooks/`) |
+
+Most installable capabilities are **single skills**. Plugins typically bundle a coherent suite from one author — `document-skills` ships ~16 skills (xlsx, pdf, docx, pptx…); `autoresearch` ships ~10.
+
+📖 Full vocabulary in **`glossary.md`** at the repository root.
+
+</v-clicks>
+
+---
+
 # Skills: Persistent Domain Expertise
 
 <v-clicks>
