@@ -476,25 +476,25 @@ osqueryi --json "SELECT version FROM osquery_info;"
 
 #### Part C: Output Styles (5 minutes)
 
-7. **Test Built-in Output Styles**:
-   ```bash
-   # Exit current session, start with explanatory style
-   claude --output-style explanatory
-   ```
+> **Note**: As of recent versions, output styles are switched via `/config` → **Output style** (the older bare `/output-style` command is gone). The system prompt is fixed at session start, so a style change **takes effect on the next session** — restart Claude Code after switching.
 
-   Ask the same question twice with different styles:
+7. **Test Built-in Output Styles** (Default / Explanatory / Learning):
+
+   In your current session, run:
+   ```
+   /config
+   ```
+   Navigate to **Output style** and pick **Explanatory**. Exit and restart Claude Code in this directory, then ask:
    ```
    Explain how the weather API integration works
    ```
+   Notice the inline "Insights" Claude weaves between coding steps.
 
-   Exit and try learning style:
-   ```bash
-   claude --output-style learning
-   ```
+   Now repeat with **Learning** (`/config` → Output style → Learning, then restart):
    ```
    Explain how the weather API integration works
    ```
-   - Compare the verbosity and teaching approach
+   Same prompt, more collaborative answer — Claude may insert `TODO(human)` markers asking you to implement small pieces yourself.
 
 8. **Create Custom Output Style**:
    ```
@@ -505,6 +505,8 @@ osqueryi --json "SELECT version FROM osquery_info;"
    - Shows code without preambles
    Save it to ~/.claude/output-styles/production.md
    ```
+
+   Then run `/config` → **Output style** → **production**, restart, and verify the new register.
 
 #### Part D: Hooks and Automation (10 minutes)
 
@@ -726,9 +728,10 @@ After completing this lab, you will:
 - Review hook output - errors appear as user messages
 
 **Output style not changing?**
-- Verify file is in `~/.claude/output-styles/`
+- Verify file is in `~/.claude/output-styles/` (or `.claude/output-styles/` for project scope)
 - Check YAML frontmatter format
-- Restart claude with `--output-style` flag
+- **Restart Claude Code** — output style is set at session start; mid-session changes don't apply until next session
+- Confirm via `/config` → **Output style** that the right style is selected
 
 **MCP servers not working?**
 - Run `claude mcp list` to verify server is configured

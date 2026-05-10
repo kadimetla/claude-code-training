@@ -266,22 +266,19 @@ Output styles customize how Claude presents solutions to match different context
 
 **Demo Sequence:**
 
-*   **Demo: Built-in Styles Comparison**
-    ```bash
-    # Start with explanatory style
-    claude --output-style explanatory
-    ```
+> **Heads-up for instructors**: output styles are now switched via `/config` → **Output style** (the bare `/output-style` slash command is gone). Style changes take effect on the **next session start**, not mid-conversation, because the system prompt is fixed at session start to keep prompt caching warm. The demos below restart Claude between style swaps.
+
+*   **Demo: Built-in Styles Comparison** (Default / Explanatory / Learning)
+
+    Open Claude Code in the project. Run `/config`, navigate to **Output style**, pick **Explanatory**. Exit and relaunch.
 
     *   **Prompt:** `Explain how the weather API integration works in this Flask app`
-    *   **Note:** Observe verbose, educational explanations
+    *   **Note:** Observe the educational "Insights" interleaved with the answer
 
-    Exit and restart:
-    ```bash
-    claude --output-style learning
-    ```
+    Repeat: `/config` → **Output style** → **Learning**, then exit and relaunch.
 
     *   **Same Prompt:** `Explain how the weather API integration works in this Flask app`
-    *   **Compare:** Even more detailed, step-by-step teaching approach
+    *   **Compare:** More collaborative — Claude may insert `TODO(human)` markers asking the user to implement small pieces themselves
 
 *   **Demo: Creating Custom Output Styles**
     *   **Scenario:** "In production, we want concise, expert-level responses"
@@ -293,19 +290,15 @@ Output styles customize how Claude presents solutions to match different context
         - Use technical terminology freely
         Save it to ~/.claude/output-styles/production.md`
 
-    *   **Test it:**
-    ```bash
-    claude --output-style production
-    ```
-
+    *   **Activate it:** `/config` → **Output style** → **production**, then exit and relaunch.
     *   **Same Prompt:** `Explain how the weather API integration works`
     *   **Compare:** Notice the terse, expert-oriented response
 
 *   **Demo: When to Use Each Style**
+    *   **Default:** General software-engineering work
     *   **Explanatory:** Onboarding new team members, code reviews
-    *   **Learning:** Training sessions, teaching unfamiliar concepts
-    *   **Production:** Experienced developers, quick fixes
-    *   **Custom:** Match your team's communication culture
+    *   **Learning:** Training sessions, pair-programming, teaching unfamiliar concepts
+    *   **Custom (e.g. production):** Match your team's register and communication culture
 
 *   **Exercise: Style for Your Context**
     *   **Prompt:** `Create an output style for code review sessions that:
@@ -475,8 +468,9 @@ Demonstrate how Skills, Hooks, Output Styles, and Subagents work together seamle
     # Ensure hooks are configured
     cat ~/.claude/settings.json  # Show security hook
 
-    # Set production output style
-    claude --output-style production
+    # Set production output style: /config → Output style → production
+    # (Restart Claude Code so the new system prompt applies)
+    claude
     ```
 
 *   **Demo: Complete Feature Development**
@@ -555,9 +549,9 @@ Demonstrate how Skills, Hooks, Output Styles, and Subagents work together seamle
 - Review hook script for errors
 
 *Output style not applying:*
-- Verify file location (~/.claude/output-styles/)
+- Verify file location (`~/.claude/output-styles/` for user, `.claude/output-styles/` for project)
 - Check YAML frontmatter
-- Restart claude with --output-style flag
+- **Restart Claude Code** — output style is set at session start; mid-session selection in `/config` doesn't apply until you relaunch
 
 ---
 

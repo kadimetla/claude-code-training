@@ -584,7 +584,7 @@ Perfect for teams wanting standardized context visibility
 
 <v-clicks>
 
-- **Built-in** — `/help`, `/clear`, `/compact`, `/init`, `/memory`, `/permissions`, `/agents`, `/output-style`, `/plan`, `/login`, `/mcp`, … (~30 and growing)
+- **Built-in** — `/help`, `/clear`, `/compact`, `/init`, `/memory`, `/permissions`, `/agents`, `/config`, `/plan`, `/login`, `/mcp`, … (~30 and growing)
 - **Custom (now merged into skills)** — `.claude/commands/<name>.md` still works; skills are the modern path
 - **Skill-derived** — any skill with `user-invocable: true` exposes `/<skill-name>`
 - **Plugin-supplied** — installed plugins contribute their own commands
@@ -741,15 +741,14 @@ Key shortcuts: `Ctrl+B` (background), `Ctrl+X Ctrl+K` (kill agents), `Ctrl+X Ctr
 
 <v-clicks>
 
-- **Customize how Claude presents solutions** to match learning preferences
-- **Built-in styles**: "Explanatory" and "Learning" modes
-- **Custom styles**: Create your own in `~/.claude/output-styles/`
-- **Configure via settings**: Set default style or switch per-session
+- **Modify the system prompt** to set role, tone, and format — not what Claude knows
+- **Built-in styles**: **Default**, **Explanatory**, **Learning**
+- **Custom styles**: Create your own in `~/.claude/output-styles/` (user) or `.claude/output-styles/` (project)
 - **Use cases**:
-  - Educational contexts (verbose explanations)
-  - Production work (concise, action-focused)
-  - Code review (detailed analysis)
-  - Quick fixes (minimal commentary)
+  - Onboarding new team members (Explanatory)
+  - Pair-programming and teaching (Learning — drops `TODO(human)` markers for you to fill in)
+  - Custom registers for code review, production work, etc.
+- **For project-specific guidance** (conventions, codebase facts), use `CLAUDE.md` instead
 
 </v-clicks>
 
@@ -759,23 +758,19 @@ Key shortcuts: `Ctrl+B` (background), `Ctrl+X Ctrl+K` (kill agents), `Ctrl+X Ctr
 
 <v-clicks>
 
-- **Explanatory**: Verbose with detailed explanations
-- **Learning**: Teaching-focused with step-by-step guidance and inline insights
-- **Concise**: Tight, action-focused responses
-- **Technical**: Engineer-to-engineer register with minimal scaffolding
-- **Configure in settings** or via `/output-style <name>` mid-session
-
-</v-clicks>
+- **Default**: Standard software-engineering system prompt
+- **Explanatory**: Adds educational "Insights" between coding steps
+- **Learning**: Collaborative learn-by-doing — Claude inserts `TODO(human)` markers for you to implement
+- **Switch via `/config`** → select **Output style** from the menu
+- Or edit `outputStyle` directly in `.claude/settings.local.json`:
 
 ```json
-{
-  "outputStyle": "explanatory"
-}
+{ "outputStyle": "Explanatory" }
 ```
 
-```bash
-claude --output-style learning
-```
+- **Changes take effect on the next session** (the system prompt is fixed at session start so prompt caching stays warm)
+
+</v-clicks>
 
 ---
 
@@ -797,7 +792,7 @@ description: Concise output for experienced developers
 - Assume expert-level knowledge
 ```
 
-Then use: `claude --output-style production`
+Then run `/config` → **Output style** and pick `Production`. Start a new session for the change to apply.
 
 ---
 

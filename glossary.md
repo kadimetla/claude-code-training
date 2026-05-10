@@ -99,9 +99,13 @@ file.** *See: Plugin (which can bundle an MCP config).*
 
 ### Output style
 A directive that shapes *how* Claude presents responses, without changing what
-it can do. Built-in: **Concise**, **Explanatory**, **Technical**. Custom styles
-live at `~/.claude/output-styles/<name>.md`. Switch with `/output-style <name>`
-or `claude --output-style <name>`. *See also: Effort levels.*
+it can do. Built-in: **Default**, **Explanatory**, **Learning**. Custom styles
+live at `~/.claude/output-styles/<name>.md` (user), `.claude/output-styles/`
+(project), or inside a plugin's `output-styles/` directory. Switch via
+`/config` → **Output style** (the older bare `/output-style` command is
+gone), or edit the `outputStyle` field directly in `.claude/settings.local.json`.
+**Changes take effect on the next session start** — the system prompt is fixed
+at session start so prompt caching stays warm.
 
 ## P
 
