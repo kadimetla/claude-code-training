@@ -81,6 +81,7 @@ Hooks are configured in `~/.claude/settings.json` or `.claude/settings.json`. Th
 7. **task-to-linear.sh** *(new)* — Mirror Claude's TaskCreate to a Linear issue (`TaskCreated`, `command`/`http`)
 8. **post-failure-reporter.sh** *(new)* — Capture a failed tool call's context for triage (`PostToolUseFailure`, `command`)
 9. **subagent-budget-check.sh** *(new)* — Block a subagent from launching if the team token budget is exhausted (`SubagentStart`, `command`)
+10. **pixoo/** *(new)* — Drive a Divoom Pixoo64 ambient display from Claude Code lifecycle events: yellow "INPUT?" on permission prompts, green "DONE" flash when Claude finishes a response (`Notification`/`Stop`, `command`). Requires a Pixoo64 on your LAN and the [`pixoo-rest`](https://github.com/4ch1m/pixoo-rest) Docker server. Full setup walkthrough in `pixoo/README.md`.
 
 ## Hook Best Practices
 
