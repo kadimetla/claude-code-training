@@ -21,3 +21,7 @@ test-results/
 
 # Slidev export output (published via GitHub Action to Releases)
 slides-export.pdf
+
+# Local CLI tool caches (dropped into exercises/)
+.antigravitycli/
+.playwright-cli/
