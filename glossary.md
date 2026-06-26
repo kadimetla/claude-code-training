@@ -33,12 +33,22 @@ single source of truth feeds both tools. *See: CLAUDE.md.*
 
 ### Agent Teams (research preview)
 Multiple custom subagents running in parallel against a shared task list, with
-lead-agent summaries. Enable with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`.
-Best for orthogonal concerns (e.g., review tests / review security / update
-docs in one pass). *See: Subagent.*
+lead-agent summaries. Enable with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`; with
+it set, every session has one implicit team and teammates are spawned directly
+via the Agent tool's `name` parameter (the older `TeamCreate`/`TeamDelete` tools
+were removed). Best for orthogonal concerns (e.g., review tests / review
+security / update docs in one pass). *See: Subagent, Dynamic Workflows.*
+
+### Dynamic Workflows
+Script-driven orchestration of tens to hundreds of background agents from a
+single request, using deterministic control flow (loops, conditionals, fan-out,
+pipelines) rather than model-improvised coordination. Opt in with the keyword
+`ultracode` (renamed from `workflow`) or by asking Claude to "use a workflow";
+view runs with `/workflows`. Contrast with Agent Teams, where a lead agent
+coordinates dynamically. *See: Agent Teams, Subagent.*
 
 ### Auto Mode
-A permission mode that uses a Sonnet 4.6 classifier to decide per-action
+A permission mode that uses a background safety classifier to decide per-action
 whether approval is required, instead of prompting on everything or skipping
 everything. The modern recommended escape hatch. **Replaces**
 `--dangerously-skip-permissions`, which still works but is now categorized as
@@ -125,7 +135,7 @@ pptx, …); `autoresearch` ships ~10. Single-skill plugins exist, usually
 because the distribution channel (an official marketplace) requires the
 plugin wrapper. Plugin skills are **always namespaced**: a `hello` skill in a
 plugin named `my-tools` is invoked as `/my-tools:hello`. Test locally with
-`claude --plugin-dir <path>`; reload edits with `/reload-plugins`. *See:
+`claude --plugin-dir <path>`; reload edits with `/reload-skills`. *See:
 Manifest, Marketplace, Skill.*
 
 ### Prompt
@@ -191,4 +201,4 @@ Handoff commands: `/desktop` (terminal → desktop, macOS/Windows),
 
 ---
 
-*Last updated: 2026-05-09. Re-verify against [Anthropic's official documentation](https://code.claude.com/docs/) for anything that may have shifted.*
+*Last updated: 2026-06-26. Re-verify against [Anthropic's official documentation](https://code.claude.com/docs/) for anything that may have shifted.*

@@ -90,7 +90,7 @@ Kousen IT, Inc.
 - **Core Skills**: Testing, documentation, git operations
 - **Customization**: CLAUDE.md, skills, hooks, output styles
 - **Extensibility**: Plugins, MCP integration
-- **Advanced**: Effort Levels, Plan Mode, Ultraplan, Subagents, Agent Teams, SDKs
+- **Advanced**: Effort Levels, Plan Mode, Ultraplan, Subagents, Agent Teams, Dynamic Workflows, SDKs
 
 </v-clicks>
 
@@ -246,9 +246,9 @@ The right question isn't "can Claude do this?" — it's "will I understand what 
 
 <v-clicks>
 
-- **Pro** — $20/mo · ~10-40 prompts per 5h · Sonnet 4.6
-- **Max 5x** — $100/mo · ~50-200 prompts per 5h · Sonnet 4.6 or Opus
-- **Max 20x** — $200/mo · ~200-800 prompts per 5h · Sonnet 4.6 or Opus
+- **Pro** — $20/mo · ~10-40 prompts per 5h · Sonnet (current default model)
+- **Max 5x** — $100/mo · ~50-200 prompts per 5h · Sonnet or Opus
+- **Max 20x** — $200/mo · ~200-800 prompts per 5h · Sonnet or Opus
 - **Team** — shared seats, central billing, admin controls
 - **Enterprise** — SSO, audit, custom retention, Bedrock / Vertex / Foundry routing
 - Opus uses ~5× the credits of Sonnet; limits reset every 5 hours
@@ -264,17 +264,19 @@ The right question isn't "can Claude do this?" — it's "will I understand what 
 
 <v-clicks>
 
-| Model | When to reach for it |
+| Tier | When to reach for it |
 |---|---|
-| **Opus 4.7** | Architecture decisions, multi-file refactors, hard debugging, agent orchestration |
-| **Sonnet 4.6** | Default daily driver — most coding, exploration, doc generation |
-| **Haiku 4.5** | Fast loops, batch operations, hooks, classifiers, cheap tool calls |
+| **Opus** (top tier) | Architecture decisions, multi-file refactors, hard debugging, agent orchestration |
+| **Sonnet** (default daily driver) | Most coding, exploration, doc generation |
+| **Haiku** (fastest/cheapest) | Fast loops, batch operations, hooks, classifiers, cheap tool calls |
 
-- **Switch mid-conversation**: `Alt+P` / `Option+P`
-- **Set per session**: `claude --model claude-opus-4-7`
-- **Effort levels** (`/effort low|medium|high`) are orthogonal — control depth on whichever model you picked
+- **Switch mid-conversation**: `Alt+P` / `Option+P`, or `/model` (press `s` for this session only, `d` to set the default for new sessions)
+- **Set per session at launch**: `claude --model opus`
+- **Effort levels** (`/effort low\|medium\|high\|xhigh`) are orthogonal — control depth on whichever model you picked
 
 </v-clicks>
+
+Run `/model` to see what's current — the lineup advances often (Opus 4.8 and the Fable family are the latest as of this writing; the current Opus defaults to **high** effort).
 
 Rule of thumb: Sonnet first. Reach for Opus when you've already failed once on Sonnet, not preemptively.
 
@@ -294,15 +296,12 @@ Three first-class providers for enterprises that need their own infrastructure:
 
 <v-clicks>
 
-⚠️ **Gotcha — model aliases default to *previous-version* models on all three:**
+⚠️ **Gotcha — short model aliases (`opus`, `sonnet`) often resolve to a *previous-generation* model on all three providers, lagging the latest by a version.**
 
-- `opus` → Opus **4.6** (not 4.7)
-- `sonnet` → Sonnet **4.5** (not 4.6)
-
-Use explicit version IDs for the latest models:
+Don't rely on the alias if you need the newest model — pin an explicit version ID and check your provider's model catalog for the exact string:
 ```bash
-ANTHROPIC_MODEL=claude-opus-4-7         # explicit, latest
-ANTHROPIC_MODEL=claude-sonnet-4-6       # explicit, latest
+ANTHROPIC_MODEL=claude-opus-4-8         # explicit version, not the bare "opus" alias
+ANTHROPIC_MODEL=claude-sonnet-4-6       # explicit version, not the bare "sonnet" alias
 ```
 
 Auth via the cloud provider's IAM, not an Anthropic API key. LLM gateway pattern: `ANTHROPIC_BASE_URL` + `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`.
@@ -359,8 +358,8 @@ with Next, Previous, and Play buttons"
 - **Auto-Accept Mode** (Shift+Tab) - Autonomous execution
 - **Plan Mode** (`/plan` or cycle with `Shift+Tab`) - Review plans before execution
 - **Auto Mode** - Safety classifier eliminates permission prompts (opt-in)
-- **Effort levels**: `/effort low|medium|high` to control reasoning depth
-- **Model switch**: `Alt+P` / `Option+P` to change models mid-conversation
+- **Effort levels**: `/effort low|medium|high|xhigh` to control reasoning depth
+- **Model switch**: `Alt+P` / `Option+P`, or `/model`, to change models mid-conversation
 
 </v-clicks>
 
@@ -689,6 +688,7 @@ CLAUDE.md file as though the user invoked the init task.
 - **Files**: `FileChanged`, `CwdChanged`, `WorktreeCreate`, `WorktreeRemove`
 - **Config**: `ConfigChange`, `Notification`
 - **Context**: `PreCompact`, `PostCompact`
+- **Output**: `MessageDisplay` — transform or hide assistant message text
 - **MCP**: `Elicitation`, `ElicitationResult`
 - **Agent-level hooks**: Skills and agents define their own hooks in frontmatter
 
@@ -1042,10 +1042,11 @@ image: https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0
 
 <v-clicks>
 
-- **`/effort low|medium|high`** controls reasoning depth
+- **`/effort low|medium|high|xhigh`** controls reasoning depth (picker labels: Faster ↔ Smarter)
 - **Low**: Fast responses for simple tasks
-- **Medium**: Balanced reasoning (default)
-- **High**: Deep analysis for complex architecture
+- **Medium**: Balanced reasoning
+- **High**: Deep analysis for complex architecture (current Opus defaults here)
+- **xhigh**: Maximum depth for the hardest tasks
 - **Keywords still work**: "think", "think harder", "ultrathink"
 - Can set in skill frontmatter: `effort: high`
 
@@ -1134,7 +1135,7 @@ Claude launches subagents when tasks match specialized capabilities:
 </v-clicks>
 
 ```bash
-# Enable teams (research preview)
+# Enable teams (still gated by this env var)
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 # Example prompt
@@ -1142,15 +1143,18 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 the service layer, another updates tests, a third updates docs"
 ```
 
+With the env var set, **every session already has one implicit team** — no
+`TeamCreate` step.
+
 ---
 
 # How Agent Teams Work
 
 <v-clicks>
 
-- **Lead agent** creates team, breaks work into tasks, assigns teammates
+- **Lead agent** spawns teammates directly via the **Agent tool's `name` parameter** — the old `TeamCreate`/`TeamDelete` tools were removed
 - **Teammates** work independently, report back, claim new tasks
-- **Task coordination**: `blocks`/`blockedBy` dependencies prevent conflicts
+- **Messaging**: continue a teammate with `SendMessage` (relayed messages don't carry user authority — a security guardrail)
 - **Idle state is normal**: Teammates go idle between turns, wake on message
 - **Hook events**: `TeammateIdle`, `TaskCompleted` for automation
 - **Best for**: Large refactors, multi-file features, parallel code + test work
@@ -1163,6 +1167,43 @@ Lead Agent ──→ creates tasks ──→ assigns teammates
      └── receives results ←─────────┘
          (via shared task list + messages)
 ```
+
+---
+
+# Dynamic Workflows
+
+<v-clicks>
+
+- **Orchestrate tens to hundreds of background agents** from a single request
+- **Deterministic control flow**: loops, conditionals, fan-out, and pipelines decide what runs — not model improvisation
+- **Opt-in**: include the keyword **`ultracode`** in your prompt, or just ask Claude to "use a workflow" (the keyword was renamed from `workflow` → `ultracode`)
+- **Runs in the background**: keeps each agent's tool output out of your main context; you're notified when it completes
+- **View runs**: `/workflows`
+
+</v-clicks>
+
+<v-clicks>
+
+Built for work one context can't hold: exhaustive multi-dimension code review, a migration swept across many files, or N independent design attempts scored against each other.
+
+</v-clicks>
+
+---
+
+# Agent Teams vs. Dynamic Workflows
+
+<v-clicks>
+
+| | **Agent Teams** | **Dynamic Workflows** |
+|---|---|---|
+| Coordination | Model-driven — a lead agent decides | Script-driven — deterministic control flow |
+| Best when | Work shape emerges as you go | You can describe the structure up front |
+| Scale | A handful of teammates | Tens to hundreds of agents |
+| Trigger | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` + ask | `ultracode` keyword / "use a workflow" |
+
+- **Both** spend tokens at scale — reach for them on genuinely large, parallelizable work, not quick edits
+
+</v-clicks>
 
 ---
 
@@ -1219,12 +1260,12 @@ Lead Agent ──→ creates tasks ──→ assigns teammates
 
 <v-clicks>
 
-- **Eliminates permission prompts** via a background safety classifier (Sonnet 4.6)
+- **Eliminates permission prompts** via a background safety classifier
 - Classifier reviews each action and allows/blocks automatically
 - **Different from Auto-Accept** (`Shift+Tab`): Auto Mode is intelligent, not blanket
 - **Allows**: Local file ops, dependency installs, read-only HTTP, pushing to current branch
 - **Blocks**: Downloading + executing code, production deploys, force pushes, IAM changes
-- **Requirements**: Team / Enterprise / API plan, on Sonnet 4.6 or current Opus
+- **Requirements**: Team / Enterprise / API plan, on a current Sonnet or Opus model
 - Enable: `--enable-auto-mode` or cycle with `Shift+Tab`
 - **Recommended over** `--dangerously-skip-permissions` for new workflows; the old flag still works for personal/Pro use
 
@@ -1734,9 +1775,10 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 | Command | Description |
 |---------|-------------|
-| `/effort low\|medium\|high` | Set reasoning depth |
+| `/effort low\|medium\|high\|xhigh` | Set reasoning depth |
 | `/plan` | Enter Plan Mode from prompt |
 | `/ultraplan` | Cloud-based planning session |
+| `/workflows` | View dynamic-workflow runs (trigger with `ultracode`) |
 | `/batch` | Parallel changes across codebase |
 | `/loop 5m prompt` | Recurring prompt execution |
 | `/memory` | View and manage auto-memory |

@@ -433,8 +433,8 @@ Subagents are autonomous specialized agents that Claude launches automatically f
 
 *   **Demo: Model Selection for Subagents**
     *   Explain that different subagents can use different models
-    *   Fast subagents (Explore) might use Haiku 4.5
-    *   Complex subagents (Plan) might use Opus 4.6
+    *   Fast subagents (Explore) might use Haiku (fastest tier)
+    *   Complex subagents (Plan) might use Opus (top tier)
     *   This optimizes both cost and performance
 
 *   **Demo: Custom Agent Definitions**
@@ -626,7 +626,7 @@ After completing all demonstrations and exercises, students should understand:
 3. **Customization:** CLAUDE.md, skills, output styles, effort levels
 4. **Extensibility:** Plugins, MCP integration, custom agent definitions
 5. **Automation:** Hooks (command, HTTP, prompt, agent), scheduled tasks
-6. **Intelligence:** Subagents, Agent Teams, Ultraplan
+6. **Intelligence:** Subagents, Agent Teams, Dynamic Workflows, Ultraplan
 7. **Cross-Device:** Dispatch, Remote Control, session management
 8. **Enterprise Practices:** Auto Mode, security, team collaboration, quality gates
 

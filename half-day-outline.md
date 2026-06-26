@@ -215,9 +215,9 @@ Participants will leave the course with:
 
 *For participant planning purposes*
 
-- **Pro** ($20/mo): ~10-40 prompts per 5 hours, Sonnet 4.6
-- **Max 5x** ($100/mo): ~50-200 prompts per 5 hours, Sonnet 4.6 or Opus 4.6
-- **Max 20x** ($200/mo): ~200-800 prompts per 5 hours, Sonnet 4.6 or Opus 4.6
+- **Pro** ($20/mo): ~10-40 prompts per 5 hours, Sonnet (current default model)
+- **Max 5x** ($100/mo): ~50-200 prompts per 5 hours, Sonnet or Opus
+- **Max 20x** ($200/mo): ~200-800 prompts per 5 hours, Sonnet or Opus
 - **Team**: shared seats, central billing, admin controls
 - **Enterprise**: SSO, audit, custom retention; supports Bedrock / Vertex / Foundry routing
 

@@ -25,7 +25,7 @@ You'll meet a few permission modes during the labs:
 
 - **Default** — Claude prompts before risky actions. Good for learning.
 - **Auto-Accept** (`Shift+Tab`) — blanket approval of write actions. Use when you trust the next few steps.
-- **Auto Mode** — Sonnet 4.6 classifier decides per action. Modern recommended escape hatch (replaces `--dangerously-skip-permissions`, which still works but is now legacy).
+- **Auto Mode** — a background safety classifier decides per action. Modern recommended escape hatch (replaces `--dangerously-skip-permissions`, which still works but is now legacy).
 - **`/sandbox`** — sandboxed shell for risky commands. **Note:** `/sandbox` requires WSL 2 — not available on native Windows or WSL 1.
 
 When restricting tools in headless or CI workflows, prefer `--disallowedTools` over `--allowedTools` — the allow-list flag may be ignored in `bypassPermissions` mode.
@@ -370,8 +370,8 @@ osqueryi --json "SELECT version FROM osquery_info;"
    ```
    - Learn about Explore, Plan, and General-purpose subagents
    - Understand how Claude selects the right agent for each task
-   - **Effort levels**: `/effort low|medium|high` controls reasoning depth
-   - **Keyboard shortcuts**: `Alt+P` switches models mid-conversation
+   - **Effort levels**: `/effort low|medium|high|xhigh` controls reasoning depth
+   - **Keyboard shortcuts**: `Alt+P` (or `/model`) switches models mid-conversation
 
 #### Part B: From Skill to Plugin (18 minutes)
 
@@ -461,7 +461,7 @@ osqueryi --json "SELECT version FROM osquery_info;"
    ```
    The skill auto-loads from its description, exactly like the standalone version. The behavior is identical; **what changed is the packaging**.
 
-   *Iteration tip*: edit `SKILL.md` and run `/reload-plugins` — no restart needed.
+   *Iteration tip*: edit `SKILL.md` and run `/reload-skills` — no restart needed.
 
 6. **Where the plugin grows from here** (~2 minute discussion):
    - **The dominant pattern is multi-skill bundling.** The plugin you just built has one skill, which is the *minor* mode. Look at `/help` in any session that has plugins installed: you'll typically see plugin-namespaced groups like `document-skills:xlsx`, `document-skills:pdf`, `document-skills:docx`, … (16 skills in that one plugin); `autoresearch:plan`, `autoresearch:debug`, `autoresearch:fix`, … (10 skills). When you have two or three related osquery-style wrappers — say one for `osqueryi`, one for `kubectl`, one for `aws` — that's the natural moment to bundle them under one plugin (`cli-wrappers`, maybe).
