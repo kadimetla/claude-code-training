@@ -9,6 +9,9 @@
 # Exit code 0 = success; non-zero = block the originating event.
 #
 # Required env: LINEAR_API_KEY, LINEAR_TEAM_ID
+#
+# NOTE (2.1.233+): current default models don't call TaskCreate unless
+# CLAUDE_CODE_ENABLE_TODO_TOOLS=1 is set — without it this hook never fires.
 
 set -euo pipefail
 

@@ -6,14 +6,16 @@ This directory contains advanced hook patterns for Claude Code workflow automati
 
 **Hooks** are programmable callbacks that execute in response to Claude Code events. The vocabulary expanded substantially in 2026.
 
-### Event types (current as of May 2026)
+### Event types (verified against Claude Code 2.1.241, Aug 2026)
 
 - **SessionStart / SessionEnd** — wraps the whole session
 - **PreToolUse / PostToolUse** — wraps individual tool calls (PreToolUse can modify tool inputs or block)
 - **PostToolUseFailure** — fires when a tool call errored; useful for surfacing diagnostics or auto-recovering
 - **UserPromptSubmit** — pre-process the user's prompt before Claude sees it
-- **TaskCreated** — fires when Claude creates a task via TaskCreate; useful for syncing to external trackers
+- **TaskCreated** — fires when Claude creates a task via TaskCreate. ⚠️ Current default models don't use the task tools (removed 2.1.233); export `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` or this hook never fires
+- **DirectoryAdded** — fires after `/add-dir` registers a new working directory mid-session
 - **SubagentStart** — fires when a subagent launches (`Explore`, `Plan`, custom agents); useful for resource budgeting and audit
+- **Notification** — background agents send `agent_needs_input` / `agent_completed` payloads; pairs well with the `pixoo/` examples
 
 ### Hook types (beyond plain shell commands)
 
@@ -78,7 +80,7 @@ Hooks are configured in `~/.claude/settings.json` or `.claude/settings.json`. Th
 4. **git-auto-backup.sh** — Create git stash before major operations (`PreToolUse`, `command`)
 5. **test-runner-hook.sh** — Run tests before certain operations (`PreToolUse`, `command`)
 6. **dependency-checker.sh** — Check for dependency updates (`SessionStart`, `command`)
-7. **task-to-linear.sh** *(new)* — Mirror Claude's TaskCreate to a Linear issue (`TaskCreated`, `command`/`http`)
+7. **task-to-linear.sh** — Mirror Claude's TaskCreate to a Linear issue (`TaskCreated`, `command`/`http`). Requires `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` on current models
 8. **post-failure-reporter.sh** *(new)* — Capture a failed tool call's context for triage (`PostToolUseFailure`, `command`)
 9. **subagent-budget-check.sh** *(new)* — Block a subagent from launching if the team token budget is exhausted (`SubagentStart`, `command`)
 10. **pixoo/** *(new)* — Drive a Divoom Pixoo64 ambient display from Claude Code lifecycle events: yellow "INPUT?" on permission prompts, green "DONE" flash when Claude finishes a response (`Notification`/`Stop`, `command`). Requires a Pixoo64 on your LAN and the [`pixoo-rest`](https://github.com/4ch1m/pixoo-rest) Docker server. Full setup walkthrough in `pixoo/README.md`.

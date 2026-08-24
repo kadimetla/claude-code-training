@@ -159,6 +159,6 @@ This example demonstrates the **lifecycle-reaction** category of hooks: harness 
 
 - **Validation hooks** (e.g., `check-coverage.sh`) — `PreToolUse` hooks that inspect tool arguments and can block.
 - **Auto-formatting hooks** (e.g., `pre-edit-formatter.sh`) — `PostToolUse` hooks that fix files after the model writes them.
-- **External-sync hooks** (e.g., `task-to-linear.sh`) — `TaskCreated` hooks that mirror Claude's state to another system.
+- **External-sync hooks** (e.g., `task-to-linear.sh`) — `TaskCreated` hooks that mirror Claude's state to another system (needs `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` on current models).
 
 All four categories use the same configuration shape; the difference is in the script body and the event chosen.

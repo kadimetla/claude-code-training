@@ -90,7 +90,7 @@ Kousen IT, Inc.
 - **Core Skills**: Testing, documentation, git operations
 - **Customization**: CLAUDE.md, skills, hooks, output styles
 - **Extensibility**: Plugins, MCP integration
-- **Advanced**: Effort Levels, Plan Mode, Ultraplan, Subagents, Agent Teams, Dynamic Workflows, SDKs
+- **Advanced**: Effort Levels, Plan Mode, Code Review, Subagents, Agent Teams, Dynamic Workflows, SDKs
 
 </v-clicks>
 
@@ -152,7 +152,7 @@ Local surfaces share: settings, CLAUDE.md, MCP servers, skills, and hooks. Web s
 <v-clicks>
 
 - **claude.ai/code** — Run tasks on Anthropic cloud infrastructure
-- **`--remote` flag**: Start a web session from CLI: `claude --remote "Fix the auth bug"`
+- **`--cloud` flag**: Start a web session from CLI: `claude --cloud "Fix the auth bug"`
 - **Diff view**: Review changes file-by-file before creating PRs
 - **Auto-fix PRs**: Claude responds to CI failures and review comments automatically
   - **Caveat**: Replies post under your account — may trigger automation (Atlantis, Actions)
@@ -203,24 +203,24 @@ Surface handoff slash commands you'll meet again later:
 
 ---
 
-# Ultraplan
+# Code Review: `/code-review`
 
 <v-clicks>
 
-- **Cloud-based planning** for complex, codebase-wide changes
-- Launch: `/ultraplan migrate the auth service from sessions to JWTs`
-- Or include "ultraplan" in any prompt
-- Claude drafts the plan in the cloud while **you keep working locally**
-- **Browser review**: Inline comments, emoji reactions, outline navigation
-- **Execute options**: Run in cloud (creates PR) or teleport back to terminal
+- **`/code-review`** reviews the current diff — or a PR: `/code-review <level> <pr#>` (`/review` is an alias)
+- **Effort dial**: pass a level (`low` … `max`); with none, it reuses the level you typed last
+- At `high`, `xhigh`, and `max` the review runs in a **background agent** — you keep working
+- **`/code-review ultra`**: deep multi-agent review in the cloud (user-triggered, billed)
+- Claude no longer runs `/code-review` or `/verify` on its own — **invoke them deliberately**
 
 </v-clicks>
 
-```
-Terminal status indicators:
-◇ ultraplan           — Claude is researching and drafting
-◇ ultraplan needs your input  — Clarifying question
-◆ ultraplan ready     — Plan ready to review in browser
+```bash
+# Review what you're about to commit
+/code-review
+
+# Deep review of a GitHub PR
+/code-review xhigh 1234
 ```
 
 ---
@@ -246,17 +246,17 @@ The right question isn't "can Claude do this?" — it's "will I understand what 
 
 <v-clicks>
 
-- **Pro** — $20/mo · ~10-40 prompts per 5h · Sonnet (current default model)
-- **Max 5x** — $100/mo · ~50-200 prompts per 5h · Sonnet or Opus
-- **Max 20x** — $200/mo · ~200-800 prompts per 5h · Sonnet or Opus
+- **Pro** — $20/mo · Sonnet (current default model)
+- **Max** — from $100/mo · 5x and 20x usage tiers · Sonnet or Opus
+- Usage limits are shared across Claude and Claude Code and reset every 5 hours — exact numbers shift; check the support article below
 - **Team** — shared seats, central billing, admin controls
 - **Enterprise** — SSO, audit, custom retention, Bedrock / Vertex / Foundry routing
-- Opus uses ~5× the credits of Sonnet; limits reset every 5 hours
+- Opus draws down usage faster than Sonnet — model choice affects how far a session goes
 - API path: pre-paid credits via Console; auto-creates a "Claude Code" workspace for cost tracking
 
 </v-clicks>
 
-📖 **Full details**: [Using Claude Code with your Pro or Max plan](https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
+📖 **Full details**: [Using Claude Code with your Pro or Max plan](https://support.claude.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
 
 ---
 
@@ -272,11 +272,11 @@ The right question isn't "can Claude do this?" — it's "will I understand what 
 
 - **Switch mid-conversation**: `Alt+P` / `Option+P`, or `/model` (press `s` for this session only, `d` to set the default for new sessions)
 - **Set per session at launch**: `claude --model opus`
-- **Effort levels** (`/effort low\|medium\|high\|xhigh`) are orthogonal — control depth on whichever model you picked
+- **Effort levels** (`/effort low\|medium\|high\|xhigh\|max`) are orthogonal — control depth on whichever model you picked
 
 </v-clicks>
 
-Run `/model` to see what's current — the lineup advances often (Opus 4.8 and the Fable family are the latest as of this writing; the current Opus defaults to **high** effort).
+Run `/model` to see what's current — the lineup advances often (Opus 5 — 1M context — is the default Opus as of this writing, with the Fable family above it; the current Opus defaults to **high** effort).
 
 Rule of thumb: Sonnet first. Reach for Opus when you've already failed once on Sonnet, not preemptively.
 
@@ -300,11 +300,13 @@ Three first-class providers for enterprises that need their own infrastructure:
 
 Don't rely on the alias if you need the newest model — pin an explicit version ID and check your provider's model catalog for the exact string:
 ```bash
-ANTHROPIC_MODEL=claude-opus-4-8         # explicit version, not the bare "opus" alias
-ANTHROPIC_MODEL=claude-sonnet-4-6       # explicit version, not the bare "sonnet" alias
+ANTHROPIC_MODEL=claude-opus-5           # explicit version, not the bare "opus" alias
+ANTHROPIC_MODEL=claude-sonnet-5         # explicit version, not the bare "sonnet" alias
 ```
 
 Auth via the cloud provider's IAM, not an Anthropic API key. LLM gateway pattern: `ANTHROPIC_BASE_URL` + `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`.
+
+Softer alternative: `ANTHROPIC_DEFAULT_MODEL` sets where new sessions *start*, while a `/model` pick still overrides it and persists — most teams want this, not the hard `ANTHROPIC_MODEL` pin.
 
 </v-clicks>
 
@@ -354,11 +356,11 @@ with Next, Previous, and Play buttons"
 
 <v-clicks>
 
-- **Command Mode** (default) - Interactive conversation
+- **Manual Mode** (the default) - Interactive conversation; prompts before actions
 - **Auto-Accept Mode** (Shift+Tab) - Autonomous execution
 - **Plan Mode** (`/plan` or cycle with `Shift+Tab`) - Review plans before execution
 - **Auto Mode** - Safety classifier eliminates permission prompts (opt-in)
-- **Effort levels**: `/effort low|medium|high|xhigh` to control reasoning depth
+- **Effort levels**: `/effort low|medium|high|xhigh|max` to control reasoning depth
 - **Model switch**: `Alt+P` / `Option+P`, or `/model`, to change models mid-conversation
 
 </v-clicks>
@@ -583,7 +585,7 @@ Perfect for teams wanting standardized context visibility
 
 <v-clicks>
 
-- **Built-in** — `/help`, `/clear`, `/compact`, `/init`, `/memory`, `/permissions`, `/agents`, `/config`, `/plan`, `/login`, `/mcp`, … (~30 and growing)
+- **Built-in** — `/help`, `/clear`, `/compact`, `/init`, `/memory`, `/permissions`, `/code-review`, `/config`, `/plan`, `/login`, `/mcp`, … (~30 and growing)
 - **Custom (now merged into skills)** — `.claude/commands/<name>.md` still works; skills are the modern path
 - **Skill-derived** — any skill with `user-invocable: true` exposes `/<skill-name>`
 - **Plugin-supplied** — installed plugins contribute their own commands
@@ -742,7 +744,7 @@ Key shortcuts: `Ctrl+B` (background), `Ctrl+X Ctrl+K` (kill agents), `Ctrl+X Ctr
 <v-clicks>
 
 - **Modify the system prompt** to set role, tone, and format — not what Claude knows
-- **Built-in styles**: **Default**, **Explanatory**, **Learning**
+- **Built-in styles**: **Default**, **Concise**, **Explanatory**, **Learning**
 - **Custom styles**: Create your own in `~/.claude/output-styles/` (user) or `.claude/output-styles/` (project)
 - **Use cases**:
   - Onboarding new team members (Explanatory)
@@ -759,6 +761,7 @@ Key shortcuts: `Ctrl+B` (background), `Ctrl+X Ctrl+K` (kill agents), `Ctrl+X Ctr
 <v-clicks>
 
 - **Default**: Standard software-engineering system prompt
+- **Concise**: Leads with results, skips preamble and narration — same thoroughness
 - **Explanatory**: Adds educational "Insights" between coding steps
 - **Learning**: Collaborative learn-by-doing — Claude inserts `TODO(human)` markers for you to implement
 - **Switch via `/config`** → select **Output style** from the menu
@@ -1042,11 +1045,12 @@ image: https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0
 
 <v-clicks>
 
-- **`/effort low|medium|high|xhigh`** controls reasoning depth (picker labels: Faster ↔ Smarter)
+- **`/effort low|medium|high|xhigh|max`** controls reasoning depth (picker labels: Faster ↔ Smarter)
 - **Low**: Fast responses for simple tasks
 - **Medium**: Balanced reasoning
 - **High**: Deep analysis for complex architecture (current Opus defaults here)
-- **xhigh**: Maximum depth for the hardest tasks
+- **xhigh**: Very deep reasoning for hard tasks
+- **max**: The ceiling — reserve for the hardest problems
 - **Keywords still work**: "think", "think harder", "ultrathink"
 - Can set in skill frontmatter: `effort: high`
 
@@ -1070,7 +1074,7 @@ image: https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0
 - Review strategy, approve, or modify approach
 - Perfect for complex, multi-file changes
 - **Uses the Plan subagent** behind the scenes
-- **`/ultraplan`**: Cloud-based planning for codebase-wide changes (see Surfaces section)
+- **Plan big work in the cloud**: `claude --cloud "…"`, review from any surface, `/teleport` it back
 
 </v-clicks>
 
@@ -1265,8 +1269,8 @@ Built for work one context can't hold: exhaustive multi-dimension code review, a
 - **Different from Auto-Accept** (`Shift+Tab`): Auto Mode is intelligent, not blanket
 - **Allows**: Local file ops, dependency installs, read-only HTTP, pushing to current branch
 - **Blocks**: Downloading + executing code, production deploys, force pushes, IAM changes
-- **Requirements**: Team / Enterprise / API plan, on a current Sonnet or Opus model
-- Enable: `--enable-auto-mode` or cycle with `Shift+Tab`
+- **Requirements**: a current Sonnet / Opus / Fable model; available across paid plans (Pro, Max, Team, Enterprise, API)
+- Enable: `--permission-mode auto`, or cycle with `Shift+Tab`
 - **Recommended over** `--dangerously-skip-permissions` for new workflows; the old flag still works for personal/Pro use
 
 </v-clicks>
@@ -1695,19 +1699,20 @@ git worktree remove ../project-feature-a
 
 ### System Health Check
 ```bash
-claude /doctor  # Diagnose installation issues
+claude doctor   # Diagnose installation issues (in-session: /doctor)
 ```
 
 ### Global Configuration
+Settings live in JSON files, not CLI commands (`claude config` was retired in 2.0):
 ```bash
-claude config set -g model claude-sonnet-4-6
-claude config set -g verbose true
-claude config set -g max_conversation_turns 10
+$EDITOR ~/.claude/settings.json      # user settings (model, hooks, permissions…)
+$EDITOR .claude/settings.json        # project settings, checked in
 ```
 
 ### Check Current Settings
 ```bash
-claude config list  # View all settings
+# In-session: /config opens the interactive settings panel
+cat ~/.claude/settings.json
 echo $ANTHROPIC_API_KEY  # Verify API key
 ```
 
@@ -1775,9 +1780,9 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 | Command | Description |
 |---------|-------------|
-| `/effort low\|medium\|high\|xhigh` | Set reasoning depth |
+| `/effort low\|medium\|high\|xhigh\|max` | Set reasoning depth |
 | `/plan` | Enter Plan Mode from prompt |
-| `/ultraplan` | Cloud-based planning session |
+| `/code-review [level] [pr#]` | Review the current diff or a PR (`ultra` = cloud) |
 | `/workflows` | View dynamic-workflow runs (trigger with `ultracode`) |
 | `/batch` | Parallel changes across codebase |
 | `/loop 5m prompt` | Recurring prompt execution |
@@ -1793,7 +1798,9 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 | Command | Description |
 |---------|-------------|
-| `/branch` | Branch the conversation (was `/fork`) |
+| `/branch` | Branch the conversation |
+| `/fork` | Copy the session into a background session (own worktree) |
+| `/subtask` | Launch an in-session background subagent |
 | `/copy N` | Copy Nth-latest response to clipboard |
 | `/context` | Get context optimization suggestions |
 | `/color` | Set prompt-bar color for session |
@@ -1814,11 +1821,11 @@ curl -fsSL https://claude.ai/install.sh | bash
       :width="200"
       :height="200"
       type="svg"
-      data="https://docs.anthropic.com/en/docs/claude-code/overview"
+      data="https://code.claude.com/docs/en/overview"
       :margin="5"
       :dotsOptions="{ type: 'rounded', color: '#3b82f6' }"
     />
-    <p class="text-sm mt-2">docs.anthropic.com/claude-code</p>
+    <p class="text-sm mt-2">code.claude.com/docs</p>
   </div>
   <div class="flex flex-col items-center">
     <h3>Course Repository</h3>
@@ -1843,7 +1850,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 <v-clicks>
 
 ### 📚 Claude Code Documentation
-`https://docs.anthropic.com/en/docs/claude-code`
+`https://code.claude.com/docs/en/overview`
 
 ### 🐙 Official GitHub Repository  
 `https://github.com/anthropics/claude-code`

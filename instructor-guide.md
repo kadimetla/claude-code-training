@@ -555,7 +555,7 @@ Demonstrate how Skills, Hooks, Output Styles, and Subagents work together seamle
 
 ---
 
-### 12. Surfaces, Dispatch & Ultraplan
+### 12. Surfaces, Dispatch & Code Review
 
 **Project:** Any project
 
@@ -571,16 +571,16 @@ Demonstrate the multi-surface ecosystem and cloud planning.
 *   **Demo: Remote Session**
     ```bash
     # Start a cloud session from CLI
-    claude --remote "Analyze the certificate-service for dependency updates"
+    claude --cloud "Analyze the certificate-service for dependency updates"
     ```
     *   Show the session appearing on claude.ai/code
     *   Demonstrate `/teleport` to pull it back to terminal
 
-*   **Demo: Ultraplan**
-    *   **Prompt:** `/ultraplan Plan a migration of the shopping-service from Grails to Spring Boot`
-    *   **Observe:** Terminal shows `◇ ultraplan` status while Claude drafts in the cloud
-    *   When ready, review in browser with inline comments
-    *   **Point out:** You can keep working locally while ultraplan runs
+*   **Demo: Deliberate Code Review**
+    *   In shopping-service, make a small change (or reuse the lab diff), then **Prompt:** `/code-review`
+    *   **Observe:** findings ranked by severity; with `high`+ it runs in a background agent while you keep working
+    *   **Point out:** since 2.1.215 Claude never runs `/code-review` on its own — reviews are a deliberate act
+    *   Mention `/code-review ultra` (deep multi-agent cloud review, billed) without running it live
 
 *   **Discussion: Dispatch**
     *   Explain: send tasks from Claude mobile app → Desktop app
@@ -626,7 +626,7 @@ After completing all demonstrations and exercises, students should understand:
 3. **Customization:** CLAUDE.md, skills, output styles, effort levels
 4. **Extensibility:** Plugins, MCP integration, custom agent definitions
 5. **Automation:** Hooks (command, HTTP, prompt, agent), scheduled tasks
-6. **Intelligence:** Subagents, Agent Teams, Dynamic Workflows, Ultraplan
+6. **Intelligence:** Subagents, Agent Teams, Dynamic Workflows, Code Review
 7. **Cross-Device:** Dispatch, Remote Control, session management
 8. **Enterprise Practices:** Auto Mode, security, team collaboration, quality gates
 
