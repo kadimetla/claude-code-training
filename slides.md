@@ -493,8 +493,6 @@ image: https://images.unsplash.com/photo-1556075798-4825dfaaf498?ixlib=rb-4.0.3&
 💡 **Pro tip**: Request "in parallel" for faster execution
 
 ---
-
----
 layout: image-left
 image: https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80
 backgroundSize: cover
