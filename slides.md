@@ -956,17 +956,24 @@ Anthropic provides four production-ready Agent Skills:
 ### Skill Structure
 ```
 ~/.claude/skills/my-skill/
-├── SKILL.md          # Required: Instructions with YAML frontmatter
-├── templates/        # Optional: Reusable templates
-├── scripts/          # Optional: Helper scripts
-└── reference/        # Optional: Documentation, schemas
+├── SKILL.md      # Required: YAML frontmatter + instructions
+├── templates/    # Optional: reusable templates
+├── scripts/      # Optional: helper scripts
+└── reference/    # Optional: docs, schemas
 ```
 
-### Example SKILL.md
+Frontmatter options: `effort`, `context: fork`, `paths`, `shell`, `model`
+
+</v-clicks>
+
+---
+
+# Example SKILL.md
+
 ```markdown
 ---
 name: Java Spring Generator
-description: Generate Spring Boot components following team patterns
+description: Generate Spring Boot components
 effort: high
 paths:
   - "src/**/*.java"
@@ -976,14 +983,10 @@ paths:
 
 When generating Spring Boot code:
 1. Use constructor injection, not @Autowired
-2. Follow package conventions: controller/service/repository
-3. Include comprehensive JavaDoc
-4. Generate corresponding test files with @SpringBootTest
+2. Follow controller/service/repository packages
+3. Include JavaDoc
+4. Generate tests with @SpringBootTest
 ```
-
-New frontmatter: `effort`, `context: fork`, `paths`, `shell`, `model`
-
-</v-clicks>
 
 ---
 
@@ -1009,7 +1012,7 @@ New frontmatter: `effort`, `context: fork`, `paths`, `shell`, `model`
 <v-clicks>
 
 ### Enterprise Workflows
-- Standardize code generation patterns across teams
+- Standardize code generation across teams
 - Enforce security review processes
 - Automate compliance documentation
 - Integrate with internal tools and APIs
@@ -1017,22 +1020,24 @@ New frontmatter: `effort`, `context: fork`, `paths`, `shell`, `model`
 ### Team Collaboration
 - Share custom commands and agents
 - Distribute MCP server configurations
-- Maintain consistent development practices
 - Onboard new team members faster
 
-### Example
+</v-clicks>
+
+---
+
+# Plugin Example
+
 ```bash
 # Install company's internal plugin
 /plugin install acme-corp-standards
 
 # Plugin provides:
-# - Custom slash commands for service generation
+# - Slash commands for service generation
 # - Security review hooks
 # - MCP servers for internal APIs
 # - Pre-configured output styles
 ```
-
-</v-clicks>
 
 ---
 layout: image-right
