@@ -61,6 +61,7 @@ Since this is a training course with multiple projects in one repository, use a 
 
 *   **Exercise: Vulnerability Remediation**
     *   This exercise demonstrates a real-world security workflow.
+    *   **Instructor note — do not "fix" this in the repo:** the old pins in `exercises/python/flask-api/requirements.txt` (`Flask==1.1.2`, `Werkzeug==1.0.1`, `markupsafe==2.0.1`) are **intentionally vulnerable**; they are what students find and upgrade here. GitHub will show Dependabot alerts for that file, and that is expected. Leave them open. (`weather-app` has no such exercise, so its dependencies are kept current.)
     *   **Step 1: Identify Vulnerabilities.** Have students ask the assistant to check for outdated packages.
     *   **Prompt:** `Analyze the requirements.txt file. Are these packages up-to-date? Are there any known security vulnerabilities in these specific versions?`
     *   **Step 2: Plan the Upgrade.** Ask the assistant to create a plan to upgrade the packages to secure versions.
