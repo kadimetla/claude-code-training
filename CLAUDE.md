@@ -4,7 +4,7 @@ This project contains comprehensive training materials for teaching Claude Code 
 
 ## Cross-tool conventions
 
-Claude Code does not natively read `AGENTS.md` (the convention used by Codex and other tools). To pick up shared cross-tool conventions in this repo, this file imports it explicitly:
+Claude Code reads `AGENTS.md` (the convention used by Codex and other tools) only when a project has no `CLAUDE.md` (since 2.1.277). This repo has both, so to pick up shared cross-tool conventions in this repo, this file imports it explicitly:
 
 @AGENTS.md
 

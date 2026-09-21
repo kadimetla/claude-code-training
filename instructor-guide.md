@@ -266,16 +266,16 @@ Output styles customize how Claude presents solutions to match different context
 
 **Demo Sequence:**
 
-> **Heads-up for instructors**: output styles are now switched via `/config` → **Output style** (the bare `/output-style` slash command is gone). Style changes take effect on the **next session start**, not mid-conversation, because the system prompt is fixed at session start to keep prompt caching warm. The demos below restart Claude between style swaps.
+> **Heads-up for instructors**: output styles are switched via `/config` → **Output style** or `/output-style <name>` (the bare command came back in 2.1.269 and lists the styles, now including **Proactive**). `/output-style <name>` applies **immediately, mid-session** (verified on 2.1.278), so the demos below run all three styles back-to-back in one session. Only a hand-edited `outputStyle` in a settings file waits for the next session.
 
 *   **Demo: Built-in Styles Comparison** (Default / Explanatory / Learning)
 
-    Open Claude Code in the project. Run `/config`, navigate to **Output style**, pick **Explanatory**. Exit and relaunch.
+    Open Claude Code in the project. Run `/output-style Explanatory`.
 
     *   **Prompt:** `Explain how the weather API integration works in this Flask app`
     *   **Note:** Observe the educational "Insights" interleaved with the answer
 
-    Repeat: `/config` → **Output style** → **Learning**, then exit and relaunch.
+    Switch in place: `/output-style Learning`.
 
     *   **Same Prompt:** `Explain how the weather API integration works in this Flask app`
     *   **Compare:** More collaborative — Claude may insert `TODO(human)` markers asking the user to implement small pieces themselves
@@ -290,7 +290,7 @@ Output styles customize how Claude presents solutions to match different context
         - Use technical terminology freely
         Save it to ~/.claude/output-styles/production.md`
 
-    *   **Activate it:** `/config` → **Output style** → **production**, then exit and relaunch.
+    *   **Activate it:** `/output-style production` (relaunch once only if the new file isn't listed yet).
     *   **Same Prompt:** `Explain how the weather API integration works`
     *   **Compare:** Notice the terse, expert-oriented response
 
@@ -551,7 +551,8 @@ Demonstrate how Skills, Hooks, Output Styles, and Subagents work together seamle
 *Output style not applying:*
 - Verify file location (`~/.claude/output-styles/` for user, `.claude/output-styles/` for project)
 - Check YAML frontmatter
-- **Restart Claude Code** — output style is set at session start; mid-session selection in `/config` doesn't apply until you relaunch
+- Run bare `/output-style` to see the current style and the available list
+- **Restart Claude Code** if a newly created style file isn't listed, or if `outputStyle` was set by editing a settings file
 
 ---
 

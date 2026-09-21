@@ -28,7 +28,7 @@ You'll meet a few permission modes during the labs:
 - **Auto Mode** — a background safety classifier decides per action. Modern recommended escape hatch (replaces `--dangerously-skip-permissions`, which still works but is now legacy).
 - **`/sandbox`** — sandboxed shell for risky commands. **Note:** `/sandbox` requires WSL 2 — not available on native Windows or WSL 1.
 
-When restricting tools in headless or CI workflows, prefer `--disallowedTools` over `--allowedTools`: with `--permission-mode bypassPermissions`, the allow-list does not constrain tools (verified on 2.1.241 — a Write ran despite `--allowedTools "Read"`).
+When restricting tools in headless or CI workflows, prefer `--disallowedTools` over `--allowedTools`: with `--permission-mode bypassPermissions`, the allow-list does not constrain tools (re-verified on 2.1.278 — a Write ran despite `--allowedTools "Read"`). For unattended runs, newer flags are a better fit than bypass: `--permission-prompts none` auto-denies anything that would prompt (the permission mode still decides the rest), and `--restricted` removes the command-running tools and `WebFetch` outright and refuses `bypassPermissions`.
 
 ## Lab 0: Project Creation from Scratch
 
@@ -476,21 +476,21 @@ osqueryi --json "SELECT version FROM osquery_info;"
 
 #### Part C: Output Styles (5 minutes)
 
-> **Note**: As of recent versions, output styles are switched via `/config` → **Output style** (the older bare `/output-style` command is gone). The system prompt is fixed at session start, so a style change **takes effect on the next session** — restart Claude Code after switching.
+> **Note**: As of recent versions, output styles are switched via `/config` → **Output style**, or with `/output-style <name>` (bare `/output-style` lists the available styles). `/output-style <name>` **applies immediately** — no restart (verified on 2.1.278). Editing `outputStyle` in a settings file by hand is picked up on the next session.
 
-7. **Test Built-in Output Styles** (Default / Concise / Explanatory / Learning):
+7. **Test Built-in Output Styles** (Default / Proactive / Concise / Explanatory / Learning):
 
    In your current session, run:
    ```
-   /config
+   /output-style Explanatory
    ```
-   Navigate to **Output style** and pick **Explanatory**. Exit and restart Claude Code in this directory, then ask:
+   Then, in the same session, ask:
    ```
    Explain how the weather API integration works
    ```
    Notice the inline "Insights" Claude weaves between coding steps.
 
-   Now repeat with **Learning** (`/config` → Output style → Learning, then restart):
+   Now switch again with `/output-style Learning` and repeat — no restart needed:
    ```
    Explain how the weather API integration works
    ```
@@ -506,7 +506,7 @@ osqueryi --json "SELECT version FROM osquery_info;"
    Save it to ~/.claude/output-styles/production.md
    ```
 
-   Then run `/config` → **Output style** → **production**, restart, and verify the new register.
+   Then run `/output-style production` and verify the new register. (If the new style isn't listed yet, restart once so the file is picked up.) Finish with `/output-style default`.
 
 #### Part D: Hooks and Automation (10 minutes)
 
@@ -595,12 +595,12 @@ osqueryi --json "SELECT version FROM osquery_info;"
 
    Note that the built-in slash command `/init` creates the `CLAUDE.md` file, but you can simply ask Claude to create it.
 
-17. **The AGENTS.md trap (and the bridge pattern)**:
+17. **The AGENTS.md fallback rule (and the bridge pattern)**:
    ```
-   This repo also has an AGENTS.md (Codex's convention). Claude Code does not natively read it. Update CLAUDE.md to reference @AGENTS.md so the cross-tool conventions are picked up. Explain what changed and why.
+   This repo also has an AGENTS.md (the cross-tool convention). Claude Code only reads AGENTS.md when there is no CLAUDE.md, so with both files present it is ignored. Update CLAUDE.md to reference @AGENTS.md so the cross-tool conventions are picked up. Explain what changed and why.
    ```
 
-   Observe how `@filepath` import keeps a single source of truth.
+   Observe how `@filepath` import keeps a single source of truth. (Since 2.1.277, a project with *only* an `AGENTS.md` is read natively — the bridge matters when both files exist.)
 
 18. **Skill vs. legacy command** (compare side-by-side):
    ```
@@ -730,8 +730,8 @@ After completing this lab, you will:
 **Output style not changing?**
 - Verify file is in `~/.claude/output-styles/` (or `.claude/output-styles/` for project scope)
 - Check YAML frontmatter format
-- **Restart Claude Code** — output style is set at session start; mid-session changes don't apply until next session
-- Confirm via `/config` → **Output style** that the right style is selected
+- Run bare `/output-style` to confirm which style is current and that yours is listed
+- **Restart Claude Code** if a newly created style file isn't listed, or if you set `outputStyle` by editing a settings file
 
 **MCP servers not working?**
 - Run `claude mcp list` to verify server is configured

@@ -85,7 +85,7 @@ After saving, restart Claude Code (or start a new session) so it picks up the ch
 1. Open Claude Code in a project where permissions are *not* set to `bypassPermissions` — you need real permission prompts for the demo. The simplest way is to run with the default mode:
 
    ```bash
-   claude --permission-mode=default
+   claude --permission-mode=manual
    ```
 
 2. Ask Claude to do something that requires a tool call (e.g., "list the files here"). When Claude asks for permission, the Pixoo lights up yellow with "INPUT?".
@@ -143,7 +143,7 @@ Each `curl` uses `-m 3` (3-second max time) and pipes output to `/dev/null`. The
 | Pixoo doesn't react to anything | `docker ps` — is the container running? |
 | API returns non-200 from `/apidocs/` | The REST server is up but the Pixoo IP in `.env` may be wrong — check the Divoom app. |
 | Yellow "INPUT?" appears but no green "DONE" | `Stop` hook may not be registered; re-check `settings.json`. |
-| Permission prompts never trigger yellow | You're probably in `bypassPermissions` mode — try `claude --permission-mode=default`. |
+| Permission prompts never trigger yellow | You're probably in `bypassPermissions` mode — try `claude --permission-mode=manual`. |
 | Pixoo stays stuck on green | The 3s revert process was killed. Run `curl -X PUT http://localhost:5001/channel/0` to clear, then check for `nohup`/`disown` in your `pixoo-done.sh`. |
 
 ## Files in this directory

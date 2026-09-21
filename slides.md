@@ -276,7 +276,7 @@ The right question isn't "can Claude do this?" — it's "will I understand what 
 
 </v-clicks>
 
-Run `/model` to see what's current — the lineup advances often (Opus 5 — 1M context — is the default Opus as of this writing, with the Fable family above it; the current Opus defaults to **high** effort).
+Run `/model` to see what's current — the lineup advances often (Opus 5 — 1M context — is the default Opus as of this writing, with Fable 5.1 above it; the current Opus defaults to **high** effort).
 
 Rule of thumb: Sonnet first. Reach for Opus when you've already failed once on Sonnet, not preemptively.
 
@@ -528,14 +528,14 @@ backgroundSize: cover
 
 ---
 
-# AGENTS.md vs CLAUDE.md (the trap)
+# AGENTS.md vs CLAUDE.md (the fallback rule)
 
 <v-clicks>
 
-- **`AGENTS.md`** is the convention for *other* tools (Codex, etc.)
-- **Claude Code does NOT natively read `AGENTS.md`** — only `CLAUDE.md` (open issue [#6235](https://github.com/anthropics/claude-code/issues/6235))
-- A repo with both files looks bilingual but is silently single-language to Claude Code
-- **Bridge pattern** — reference `AGENTS.md` from `CLAUDE.md` so Claude Code picks it up:
+- **`AGENTS.md`** is the cross-tool convention (Codex, etc.)
+- **Since 2.1.277, Claude Code reads `AGENTS.md` — but only when the project has no `CLAUDE.md`** (toggle: `/config` → **Project instructions**; not yet on Bedrock / Vertex / Foundry)
+- **The trap that remains**: with *both* files present, `CLAUDE.md` wins and `AGENTS.md` is silently ignored
+- **Bridge pattern** — reference `AGENTS.md` from `CLAUDE.md` so Claude Code picks up both:
 
 ```markdown
 # CLAUDE.md
@@ -686,7 +686,7 @@ CLAUDE.md file as though the user invoked the init task.
 - **Tools**: `PreToolUse`, `PostToolUse`, `PermissionRequest`, `PermissionDenied`
 - **Teams**: `TeammateIdle`, `TaskCreated`, `TaskCompleted`
 - **Files**: `FileChanged`, `CwdChanged`, `WorktreeCreate`, `WorktreeRemove`
-- **Config**: `ConfigChange`, `Notification`
+- **Config & model**: `ConfigChange`, `Notification`, `PreModelSwitch`, `PostModelSwitch`
 - **Context**: `PreCompact`, `PostCompact`
 - **Output**: `MessageDisplay` — transform or hide assistant message text
 - **MCP**: `Elicitation`, `ElicitationResult`
@@ -742,7 +742,7 @@ Key shortcuts: `Ctrl+B` (background), `Ctrl+X Ctrl+K` (kill agents), `Ctrl+X Ctr
 <v-clicks>
 
 - **Modify the system prompt** to set role, tone, and format — not what Claude knows
-- **Built-in styles**: **Default**, **Concise**, **Explanatory**, **Learning**
+- **Built-in styles**: **Default**, **Proactive**, **Concise**, **Explanatory**, **Learning**
 - **Custom styles**: Create your own in `~/.claude/output-styles/` (user) or `.claude/output-styles/` (project)
 - **Use cases**:
   - Onboarding new team members (Explanatory)
@@ -759,17 +759,18 @@ Key shortcuts: `Ctrl+B` (background), `Ctrl+X Ctrl+K` (kill agents), `Ctrl+X Ctr
 <v-clicks>
 
 - **Default**: Standard software-engineering system prompt
+- **Proactive**: Executes immediately, minimizes interruptions, prefers action over planning
 - **Concise**: Leads with results, skips preamble and narration — same thoroughness
 - **Explanatory**: Adds educational "Insights" between coding steps
 - **Learning**: Collaborative learn-by-doing — Claude inserts `TODO(human)` markers for you to implement
-- **Switch via `/config`** → select **Output style** from the menu
+- **Switch via `/output-style <name>`** (bare `/output-style` lists them), or `/config` → **Output style**
 - Or edit `outputStyle` directly in `.claude/settings.local.json`:
 
 ```json
 { "outputStyle": "Explanatory" }
 ```
 
-- **Changes take effect on the next session** (the system prompt is fixed at session start so prompt caching stays warm)
+- **`/output-style` applies immediately**; a hand-edited settings file is picked up on the next session
 
 </v-clicks>
 
@@ -793,7 +794,7 @@ description: Concise output for experienced developers
 - Assume expert-level knowledge
 ```
 
-Then run `/config` → **Output style** and pick `Production`. Start a new session for the change to apply.
+Then run `/output-style production` — it applies immediately.
 
 ---
 
@@ -1181,7 +1182,8 @@ Lead Agent ──→ creates tasks ──→ assigns teammates
 
 <v-clicks>
 
-- **Orchestrate tens to hundreds of background agents** from a single request
+- **Orchestrate many background agents** from one request — a handful up to hundreds
+- **Size is a setting**: `/config` → **Dynamic workflow size** — default **medium** (≈10 agents; **small** on Pro). Bigger fan-outs are an explicit ask, and they burn tokens fast
 - **Deterministic control flow**: loops, conditionals, fan-out, and pipelines decide what runs — not model improvisation
 - **Opt-in**: include the keyword **`ultracode`** in your prompt, or just ask Claude to "use a workflow" (the keyword was renamed from `workflow` → `ultracode`)
 - **Runs in the background**: keeps each agent's tool output out of your main context; you're notified when it completes
@@ -1205,7 +1207,7 @@ Built for work one context can't hold: exhaustive multi-dimension code review, a
 |---|---|---|
 | Coordination | Model-driven — a lead agent decides | Script-driven — deterministic control flow |
 | Best when | Work shape emerges as you go | You can describe the structure up front |
-| Scale | A handful of teammates | Tens to hundreds of agents |
+| Scale | A handful of teammates | ≈10 agents by default, up to hundreds |
 | Trigger | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` + ask | `ultracode` keyword / "use a workflow" |
 
 - **Both** spend tokens at scale — reach for them on genuinely large, parallelizable work, not quick edits
@@ -1598,10 +1600,10 @@ Read(src/*)             # Allow reading source files
 <v-clicks>
 
 ### Six modes (cycle with `Shift+Tab`)
-- **Default**: Prompts for each action
+- **Manual** (the default): Prompts for each action
 - **Accept Edits**: Auto-approves file edits
 - **Plan**: Read-only exploration, no edits
-- **Auto**: Safety classifier decides (Team/Enterprise/API)
+- **Auto**: Safety classifier decides (all paid plans)
 - **Don't Ask**: Only pre-approved tools run (CI/CD)
 - **Bypass Permissions**: No prompts at all
 
@@ -1772,6 +1774,24 @@ curl -fsSL https://claude.ai/install.sh | bash
 - Use git worktrees for parallel sessions on different branches
 - Review changes before accepting
 - Test generated code thoroughly
+
+</v-clicks>
+
+---
+
+# What's New (Claude Code 2.1.278, Sept 2026)
+
+<v-clicks>
+
+- **`/skill-doctor`** — which loaded skills go unused, and what they cost in context
+- **`/diff`** — live panel of your uncommitted changes beside the conversation (fullscreen)
+- **`/effort`**: press `s` for session-only; your default effort is now saved **per model**
+- **Auto mode**: view/edit classifier rules in `/permissions` → **Auto mode**; Bash prompts offer "Yes, and switch to auto mode"
+- **Plugins**: `/plugin install <plugin> --marketplace <source>`; test one with `claude plugin eval`
+- **claude.ai sync**: skills and plugins enabled on your account appear in the terminal (`anthropic-skills:*`)
+- **Background sessions**: `claude --bg`, then `claude agents` / `attach` / `logs` / `stop` / `respawn` / `rm`
+- **Headless lockdown**: `--permission-prompts none`, `--restricted`
+- **Models**: Fable 5.1 is the default Fable (`--model fable`); `omitClaudeMd` lets a subagent skip CLAUDE.md
 
 </v-clicks>
 
