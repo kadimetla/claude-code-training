@@ -69,6 +69,38 @@ Kousen IT, Inc.
 
 ---
 
+# The Book
+
+<div class="grid grid-cols-2 gap-8 mt-4 items-center">
+  <div class="flex justify-center">
+    <img src="/claude-code-up-and-running.png" alt="Cover of Claude Code: Up and Running" class="h-100 shadow-lg" />
+  </div>
+  <div>
+
+### Claude Code: Up and Running
+*Harness the Power of Agentic Coding*
+
+Ken Kousen · O'Reilly Media
+
+On the O'Reilly learning platform — a reference to keep using after today.
+
+<div class="flex items-center gap-4 mt-4">
+  <QRCode
+    :width="130"
+    :height="130"
+    type="svg"
+    data="https://learning.oreilly.com/library/view/claude-code-up/0642572388782/"
+    :margin="5"
+    :dotsOptions="{ type: 'rounded', color: '#d3002d' }"
+  />
+  <span class="text-sm">learning.oreilly.com<br/>search "Claude Code: Up and Running"</span>
+</div>
+
+  </div>
+</div>
+
+---
+
 # Course Overview
 
 <v-clicks>
@@ -1868,7 +1900,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 # Important Links
 
-<div class="mt-8 space-y-6 text-xl">
+<div class="mt-2 text-base [&_h3]:mt-3 [&_h3]:mb-0 [&_h3]:text-xl [&_p]:my-1">
 
 <v-clicks>
 
@@ -1877,6 +1909,9 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 ### 🐙 Official GitHub Repository  
 `https://github.com/anthropics/claude-code`
+
+### 📖 *Claude Code: Up and Running* (O'Reilly)
+`https://learning.oreilly.com/library/view/claude-code-up/0642572388782/`
 
 ### 💻 Course Source Code & Exercises
 `https://github.com/kousen/claude-code-training`
