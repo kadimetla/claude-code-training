@@ -10,7 +10,7 @@ This course teaches professional developers how to:
 - Implement the "branch-first" workflow for safe experimentation
 - Generate comprehensive tests and documentation
 - Refactor legacy code and modernize applications
-- Use advanced Claude Code features like Plan Mode and custom commands
+- Use advanced Claude Code features like Plan Mode, `/code-review`, subagents, and dynamic workflows
 - Extend capabilities with Skills and Plugins for specialized workflows
 - Customize output styles for different learning preferences
 - Understand and leverage subagents for complex multi-step tasks
@@ -25,10 +25,14 @@ This repository contains all the materials for the Claude Code Training course:
 - **`instructor-guide.md`**: Instructor-led demos and exercises using real codebases
 - **`half-day-outline.md`**: Condensed outline for half-day training sessions
 - **`events/`**: Event-specific descriptions and course configurations
-- **`custom-commands.md`**: Showcase of powerful custom slash commands for workflow automation
-- **`commands/`**: Ready-to-use custom command files for students
-- **`skills-and-plugins/`**: Examples of custom skills and plugin configurations
+- **`glossary.md`**: Vocabulary reference for the course concepts
+- **`webinar_slides.md`** / **`webinar_demos.md`**: Shorter 90-minute webinar variant
+- **`custom-commands.md`**: Skills-first walkthrough of workflow automation, with the legacy command form for comparison
+- **`skills/`**: Ready-to-copy skills, each demonstrating a different frontmatter capability
+- **`commands/`**: One legacy `.claude/commands/` example kept for contrast with skills
+- **`skills-and-plugins/`**: Larger teaching-library skills and a plugin example used in Lab 6
 - **`hooks-examples/`**: Advanced hook patterns for workflow automation
+- **`sample-claude-md/`**: Example `CLAUDE.md` files worth borrowing from
 - **`exercises/`**: A collection of diverse sample projects:
   - **Python**: Flask web app (`weather-app`) and legacy API (`flask-api`)
   - **JavaScript/TypeScript**: Interactive web application (`lyrics-trainer`)
@@ -60,7 +64,7 @@ No PDF is committed to the repo — it lives only in [GitHub Releases](https://g
 
 ### Prerequisites
 - Claude Code installed and configured
-- API key set: `export ANTHROPIC_API_KEY="your-key"`
+- Signed in with a Claude subscription (Pro / Max / Team / Enterprise) via `/login`, **or** an API key: `export ANTHROPIC_API_KEY="your-key"`
 - Development environment for Python, JavaScript/TypeScript, and Java
 - VS Code (optional, for IDE integration demonstrations)
 - Docker (optional, for MCP and containerized workflow examples)
@@ -74,13 +78,13 @@ The `lab_handout.md` contains six progressive labs:
 3. **Test Generation** - Automated testing with AI
 4. **Documentation Creation** - Professional documentation workflows
 5. **Legacy Code Refactoring** - Modernizing Grails/Groovy applications
-6. **Advanced Workflows** - Plan Mode, Skills, Plugins, Output Styles, Hooks, CLAUDE.md, and custom commands
+6. **Advanced Workflows** - Plan Mode, Skills, Plugins, Output Styles, Hooks, CLAUDE.md, Agent Teams, and Dynamic Workflows
 
-### Custom Commands
-Students can explore and use pre-built custom slash commands:
-- Copy commands from `commands/` to `~/.claude/commands/`
-- See `custom-commands.md` for detailed explanations and usage examples
-- Commands include Java modernization, Spring generators, security reviews, and more
+### Skills (formerly Custom Commands)
+As of Claude Code 2.1, custom slash commands are merged into skills. Students can explore and use the pre-built ones:
+- Copy a skill directory from `skills/` to `~/.claude/skills/` (user scope) or `.claude/skills/` (project scope)
+- See `custom-commands.md` for the walkthrough; `commands/docs.md` shows the legacy form for comparison
+- Skills include Java modernization, Spring generators, security reviews, and onboarding
 
 ### Teaching Notes
 The `instructor-guide.md` file contains detailed instructor guidance with specific prompts and a progressive story arc using the `flask-api` project as the primary demonstration vehicle.
@@ -94,6 +98,11 @@ The `instructor-guide.md` file contains detailed instructor guidance with specif
 - **Extensibility First**: Skills and plugins provide persistent, reusable domain expertise
 - **Adaptive Learning**: Output styles and hooks adapt to diverse learning contexts
 - **Intelligent Automation**: Subagents handle specialized tasks automatically for optimal performance
+
+## 📖 Companion Book
+
+*Claude Code: Up and Running — Harness the Power of Agentic Coding* (O'Reilly Media), by Ken Kousen:
+<https://learning.oreilly.com/library/view/claude-code-up/0642572388782/>
 
 ## 👤 Author
 
