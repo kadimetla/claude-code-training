@@ -16,7 +16,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Code Style Guidelines
 - Java 21 with Spring Boot 3.4.4
-- Class names use PascalCase, method/variable names use camelCase
 - Organize imports: java.*, javax.*, org.*, com.* (alphabetical within groups)
 - Prefer Optional<T> over null for optional values
 - Use explicit constructor injection for Spring dependencies
@@ -26,7 +25,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Maintain separation of concerns (controller/service/model)
 - Use final for immutable fields
 - Use records for simple data classes wherever possible
-- Remove unused imports
 
 ## Architecture Overview
 - **Main Application**: Certificate generation with PDF signing and QR codes
@@ -36,7 +34,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Web UI**: Thymeleaf templates with Bootstrap and Chart.js for analytics dashboard
 
 ## Database Configuration
-- Uses environment variable overrides: DATABASE_URL, DATABASE_DRIVER, DATABASE_USERNAME, etc.
+- Uses environment variable overrides: DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD (driver and dialect are auto-detected from the URL)
 - Hibernate DDL mode configurable via HIBERNATE_DDL_AUTO environment variable
 - Production profile available in application-production.yaml
 - Analytics tables: certificate_events, certificate_metadata, aggregated_metrics
