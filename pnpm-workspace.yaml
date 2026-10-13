@@ -1,6 +1,13 @@
+# Dependency build scripts: none of these need their postinstall for the deck.
+# CI installs the Playwright browser explicitly in the workflow.
 allowBuilds:
-  esbuild: set this to true or false
-  playwright-chromium: set this to true or false
-ignoredBuiltDependencies:
-  - esbuild
-  - playwright-chromium
+  esbuild: false
+  playwright-chromium: false
+  vue-demi: false
+
+# slidev-component-progress pins an ancient @slidev/client (0.48.x) that
+# drags in old unocss/unhead/chokidar; align it with the real Slidev version.
+overrides:
+  "slidev-component-progress>@slidev/client": "^51.8.2"
+  # Slidev 51 ranges katex ^0.16; 53 moves to ^0.18.7, which is the patched line.
+  katex: "^0.18.7"
