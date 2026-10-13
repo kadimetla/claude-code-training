@@ -52,6 +52,12 @@ This repository contains all the materials for the Claude Code Training course:
 
 3.  Open your browser at <http://localhost:3030>
 
+### 🌐 Slides online
+
+The deck is published to GitHub Pages on every push to `main` that touches `slides.md`, by [`.github/workflows/deploy-slides-pages.yml`](.github/workflows/deploy-slides-pages.yml):
+
+**<https://kousen.github.io/claude-code-training/>**
+
 ### 📄 Latest PDF
 
 A current PDF of the slides is rebuilt automatically whenever `slides.md` lands on `main` and attached to a rolling release. Stable download URL:
