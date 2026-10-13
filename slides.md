@@ -241,6 +241,7 @@ Surface handoff slash commands you'll meet again later:
 
 - **`/code-review`** reviews the current diff — or a PR: `/code-review <level> <pr#>` (`/review` is an alias)
 - **Effort dial**: pass a level (`low` … `max`); with none, it reuses the level you typed last
+- **`--max-findings <n>|all`**: report more or fewer than the usual limit; the choice sticks until `--max-findings default`
 - At `high`, `xhigh`, and `max` the review runs in a **background agent** — you keep working
 - **`/code-review ultra`**: deep multi-agent review in the cloud (user-triggered, billed)
 - Claude no longer runs `/code-review` or `/verify` on its own — **invoke them deliberately**
@@ -278,7 +279,7 @@ The right question isn't "can Claude do this?" — it's "will I understand what 
 
 <v-clicks>
 
-- **Pro** — $20/mo · Sonnet (current default model)
+- **Pro** — $20/mo · Opus is the default model (since 2.1.280; was Sonnet)
 - **Max** — from $100/mo · 5x and 20x usage tiers · Sonnet or Opus
 - Usage limits are shared across Claude and Claude Code and reset every 5 hours — exact numbers shift; check the support article below
 - **Team** — shared seats, central billing, admin controls
@@ -299,18 +300,18 @@ The right question isn't "can Claude do this?" — it's "will I understand what 
 | Tier | When to reach for it |
 |---|---|
 | **Opus** (top tier) | Architecture decisions, multi-file refactors, hard debugging, agent orchestration |
-| **Sonnet** (default daily driver) | Most coding, exploration, doc generation |
+| **Sonnet** (cheaper daily driver) | Most coding, exploration, doc generation |
 | **Haiku** (fastest/cheapest) | Fast loops, batch operations, hooks, classifiers, cheap tool calls |
 
 - **Switch mid-conversation**: `Alt+P` / `Option+P`, or `/model` (press `s` for this session only, `d` to set the default for new sessions)
-- **Set per session at launch**: `claude --model opus`
+- **Set per session at launch**: `claude --model opus --effort high`
 - **Effort levels** (`/effort low\|medium\|high\|xhigh\|max`) are orthogonal — control depth on whichever model you picked
 
 </v-clicks>
 
-Run `/model` to see what's current — the lineup advances often (Opus 5 — 1M context — is the default Opus as of this writing, with Fable 5.1 above it; the current Opus defaults to **high** effort).
+Run `/model` to see what's current — the lineup advances often (Opus 5.5 — 1M context — is the default Opus as of this writing, with Fable 5.1 above it; open `/effort` to see the level each model starts at).
 
-Rule of thumb: Sonnet first. Reach for Opus when you've already failed once on Sonnet, not preemptively.
+Rule of thumb: Opus is now the default on every plan, but it draws down usage faster. Drop to Sonnet for routine work when budget matters; keep Opus for the hard problems.
 
 ---
 
@@ -332,8 +333,8 @@ Three first-class providers for enterprises that need their own infrastructure:
 
 Don't rely on the alias if you need the newest model — pin an explicit version ID and check your provider's model catalog for the exact string:
 ```bash
-ANTHROPIC_MODEL=claude-opus-5           # explicit version, not the bare "opus" alias
-ANTHROPIC_MODEL=claude-sonnet-5         # explicit version, not the bare "sonnet" alias
+ANTHROPIC_MODEL=claude-opus-5-5         # explicit version, not the bare "opus" alias
+ANTHROPIC_MODEL=claude-sonnet-5-5       # explicit version, not the bare "sonnet" alias
 ```
 
 Auth via the cloud provider's IAM, not an Anthropic API key. LLM gateway pattern: `ANTHROPIC_BASE_URL` + `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1`.
@@ -565,7 +566,7 @@ backgroundSize: cover
 <v-clicks>
 
 - **`AGENTS.md`** is the cross-tool convention (Codex, etc.)
-- **Since 2.1.277, Claude Code reads `AGENTS.md` — but only when the project has no `CLAUDE.md`** (toggle: `/config` → **Project instructions**; not yet on Bedrock / Vertex / Foundry)
+- **Since 2.1.277, Claude Code reads `AGENTS.md` — but only when the project has no `CLAUDE.md`** (toggle: `/config` → **Project instructions**)
 - **The trap that remains**: with *both* files present, `CLAUDE.md` wins and `AGENTS.md` is silently ignored
 - **Bridge pattern** — reference `AGENTS.md` from `CLAUDE.md` so Claude Code picks up both:
 
@@ -715,7 +716,7 @@ CLAUDE.md file as though the user invoked the init task.
 <v-clicks>
 
 - **Session**: `SessionStart`, `SessionEnd`, `InstructionsLoaded`
-- **Tools**: `PreToolUse`, `PostToolUse`, `PermissionRequest`, `PermissionDenied`
+- **Tools**: `PreToolUse`, `PostToolUse`, `PermissionRequest` (command/http hooks only), `PermissionDenied`
 - **Teams**: `TeammateIdle`, `TaskCreated`, `TaskCompleted`
 - **Files**: `FileChanged`, `CwdChanged`, `WorktreeCreate`, `WorktreeRemove`
 - **Config & model**: `ConfigChange`, `Notification`, `PreModelSwitch`, `PostModelSwitch`
@@ -1128,7 +1129,8 @@ image: https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0
   - **Explore**: Fast codebase exploration and search
   - **General-purpose**: Full read/write access for complex work
 - **Custom agents**: Define in `.claude/agents/` as markdown with YAML frontmatter
-  - Specify: `model`, `tools`, `effort`, `hooks`, `permissionMode`
+  - Specify: `model`, `tools`, `effort`, `hooks`, `permissionMode`, `autoCompactWindow`
+  - Claude can also pass `effort` per Agent call — "Explore on Haiku at low, Plan on Opus at high" needs no agent file
 - **Background execution**: `Ctrl+B` to background, `Ctrl+X Ctrl+K` to kill
 - **Worktree isolation**: `isolation: "worktree"` for safe parallel work
 
@@ -1217,7 +1219,7 @@ Lead Agent ──→ creates tasks ──→ assigns teammates
 - **Orchestrate many background agents** from one request — a handful up to hundreds
 - **Size is a setting**: `/config` → **Dynamic workflow size** — default **medium** (≈10 agents; **small** on Pro). Bigger fan-outs are an explicit ask, and they burn tokens fast
 - **Deterministic control flow**: loops, conditionals, fan-out, and pipelines decide what runs — not model improvisation
-- **Opt-in**: include the keyword **`ultracode`** in your prompt, or just ask Claude to "use a workflow" (the keyword was renamed from `workflow` → `ultracode`)
+- **Opt-in**: toggle it for the session with `/effort ultracode on` (or Tab inside `/effort`), include the keyword **`ultracode`** in a prompt, or just ask Claude to "use a workflow"
 - **Runs in the background**: keeps each agent's tool output out of your main context; you're notified when it completes
 - **View runs**: `/workflows`
 
@@ -1240,7 +1242,7 @@ Built for work one context can't hold: exhaustive multi-dimension code review, a
 | Coordination | Model-driven — a lead agent decides | Script-driven — deterministic control flow |
 | Best when | Work shape emerges as you go | You can describe the structure up front |
 | Scale | A handful of teammates | ≈10 agents by default, up to hundreds |
-| Trigger | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` + ask | `ultracode` keyword / "use a workflow" |
+| Trigger | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` + ask | `/effort ultracode on`, `ultracode` keyword, or "use a workflow" |
 
 - **Both** spend tokens at scale — reach for them on genuinely large, parallelizable work, not quick edits
 
@@ -1307,7 +1309,8 @@ Built for work one context can't hold: exhaustive multi-dimension code review, a
 - **Allows**: Local file ops, dependency installs, read-only HTTP, pushing to current branch
 - **Blocks**: Downloading + executing code, production deploys, force pushes, IAM changes
 - **Requirements**: a current Sonnet / Opus / Fable model; available across paid plans (Pro, Max, Team, Enterprise, API)
-- Enable: `--permission-mode auto`, or cycle with `Shift+Tab`
+- **On by default** since 2.1.284, interactive and `-p` alike; `permissions.defaultMode` or `--permission-mode` overrides. `Shift+Tab` to Manual to get prompts back
+- Not free: where the classifier runs server-side, even read-only shell commands wait for its verdict
 - **Recommended over** `--dangerously-skip-permissions` for new workflows; the old flag still works for personal/Pro use
 
 </v-clicks>
@@ -1632,10 +1635,10 @@ Read(src/*)             # Allow reading source files
 <v-clicks>
 
 ### Six modes (cycle with `Shift+Tab`)
-- **Manual** (the default): Prompts for each action
+- **Manual**: Prompts for each action (the default before 2.1.284)
 - **Accept Edits**: Auto-approves file edits
 - **Plan**: Read-only exploration, no edits
-- **Auto**: Safety classifier decides (all paid plans)
+- **Auto** (the default): Safety classifier decides (all paid plans)
 - **Don't Ask**: Only pre-approved tools run (CI/CD)
 - **Bypass Permissions**: No prompts at all
 
@@ -1736,7 +1739,8 @@ git worktree remove ../project-feature-a
 
 ### System Health Check
 ```bash
-claude doctor   # Diagnose installation issues (in-session: /doctor)
+claude doctor          # Diagnose installation issues (in-session: /doctor)
+/doctor prompt-audit   # In-session: flag CLAUDE.md, skill, agent, and command prompts written for older models
 ```
 
 ### Global Configuration
@@ -1811,19 +1815,19 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 ---
 
-# What's New (Claude Code 2.1.278, Sept 2026)
+# What's New (Claude Code 2.1.296, Oct 2026)
 
 <v-clicks>
 
-- **`/skill-doctor`** — which loaded skills go unused, and what they cost in context
-- **`/diff`** — live panel of your uncommitted changes beside the conversation (fullscreen)
-- **`/effort`**: press `s` for session-only; your default effort is now saved **per model**
-- **Auto mode**: view/edit classifier rules in `/permissions` → **Auto mode**; Bash prompts offer "Yes, and switch to auto mode"
-- **Plugins**: `/plugin install <plugin> --marketplace <source>`; test one with `claude plugin eval`
-- **claude.ai sync**: skills and plugins enabled on your account appear in the terminal (`anthropic-skills:*`)
-- **Background sessions**: `claude --bg`, then `claude agents` / `attach` / `logs` / `stop` / `respawn` / `rm`
-- **Headless lockdown**: `--permission-prompts none`, `--restricted`
-- **Models**: Fable 5.1 is the default Fable (`--model fable`); `omitClaudeMd` lets a subagent skip CLAUDE.md
+- **Auto mode is the default** — fresh sessions start in Auto on every plan; `Shift+Tab` or `permissions.defaultMode` for Manual
+- **Models**: Opus 5.5, Sonnet 5.5, Haiku 5.5 — all 1M context; Opus is now the default on Pro and Team too
+- **`/effort ultracode`** — dynamic workflows are a session toggle, no longer tied to xhigh effort
+- **`/doctor prompt-audit`** — flags CLAUDE.md, skills, agents, and commands written for older models
+- **Hooks**: `onFailure: "block"` makes a crashed or timed-out hook fail closed instead of open
+- **Claude Mods**: plugins can modify deeper behavior; try `/plugin enable cc-plugin-you-should-know@builtin`
+- **`/code-review --max-findings <n>|all`**; the Agent tool takes a per-call `effort`
+- **`claude --desktop`** — open the desktop app on this directory, or on a `--resume`d session
+- **Still worth knowing**: `/skill-doctor`, `/diff`, background sessions (`claude --bg`; `attach`/`logs` accept part of a name)
 
 </v-clicks>
 

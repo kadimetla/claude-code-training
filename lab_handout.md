@@ -23,9 +23,9 @@ This document contains hands-on exercises for learning to use Claude Code for pr
 
 You'll meet a few permission modes during the labs:
 
-- **Manual** (the default mode) — Claude prompts before risky actions. Good for learning.
+- **Manual** — Claude prompts before risky actions. Good for learning. **Since 2.1.284 a fresh install starts in Auto, not Manual.** For these labs, start with `claude --permission-mode manual` (or set `permissions.defaultMode: "manual"` in `~/.claude/settings.json`) so you see the prompts the labs describe.
 - **Auto-Accept** (`Shift+Tab`) — blanket approval of write actions. Use when you trust the next few steps.
-- **Auto Mode** — a background safety classifier decides per action. Modern recommended escape hatch (replaces `--dangerously-skip-permissions`, which still works but is now legacy).
+- **Auto Mode** (the default since 2.1.284) — a background safety classifier decides per action. Modern recommended escape hatch (replaces `--dangerously-skip-permissions`, which still works but is now legacy).
 - **`/sandbox`** — sandboxed shell for risky commands. **Note:** `/sandbox` requires WSL 2 — not available on native Windows or WSL 1.
 
 When restricting tools in headless or CI workflows, prefer `--disallowedTools` over `--allowedTools`: with `--permission-mode bypassPermissions`, the allow-list does not constrain tools (re-verified on 2.1.278 — a Write ran despite `--allowedTools "Read"`). For unattended runs, newer flags are a better fit than bypass: `--permission-prompts none` auto-denies anything that would prompt (the permission mode still decides the rest), and `--restricted` removes the command-running tools and `WebFetch` outright and refuses `bypassPermissions`.
@@ -468,6 +468,7 @@ osqueryi --json "SELECT version FROM osquery_info;"
    - When **other people** need it → push the plugin folder to a git repo, then register it in a [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces).
    - When a skill needs **live external context** (e.g., reading from a monitoring system or ticketing tool) → add an MCP server config inside the plugin (`.mcp.json` at the plugin root).
    - When a step has to be **deterministic** (e.g., always block a query that touches sensitive tables) → add a hook (`hooks/hooks.json` at the plugin root).
+   - Before you hand skills or a `CLAUDE.md` to a team → run **`/doctor prompt-audit`** (2.1.283). It flags prompting patterns written for older models across your CLAUDE.md files, skills, agents, and commands. Try it on this repo now — it ships `sample-claude-md/`, `skills/`, and `skills-and-plugins/`, exactly what the audit inspects.
 
    Reference for the multi-layer case: `skills-and-plugins/plugin-examples/team-standards-plugin.md`.
 

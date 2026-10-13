@@ -6,7 +6,7 @@ This directory contains advanced hook patterns for Claude Code workflow automati
 
 **Hooks** are programmable callbacks that execute in response to Claude Code events. The vocabulary expanded substantially in 2026.
 
-### Event types (verified against Claude Code 2.1.278, Sep 2026)
+### Event types (verified against Claude Code 2.1.296, Oct 2026)
 
 - **SessionStart / SessionEnd** — wraps the whole session
 - **PreToolUse / PostToolUse** — wraps individual tool calls (PreToolUse can modify tool inputs or block)
@@ -28,7 +28,11 @@ A hook is no longer just a shell command. The supported types are:
 - `mcp_tool` — invoke a specific tool on a configured MCP server
 - `agent` — spawn a subagent to verify a condition and report back
 
-`prompt` and `agent` are useful when the decision is too nuanced for a regex or a shell exit code.
+`prompt` and `agent` are useful when the decision is too nuanced for a regex or a shell exit code. One restriction: `agent`-type hooks don't run on `PermissionRequest`, since their answer could never allow or deny the request — use `command` or `http` there (2.1.280).
+
+### Failure policy: fail open or fail closed?
+
+By default a hook that can't start, times out, or exits with an unexpected code is ignored and the action proceeds (fail-open). Since 2.1.295, `command` and `http` hooks accept `"onFailure": "block"` to fail closed instead — the action is blocked whenever the hook can't deliver a verdict. Use it on hooks that guard something you can't undo.
 
 ## Hook Configuration
 

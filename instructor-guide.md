@@ -434,14 +434,15 @@ Subagents are autonomous specialized agents that Claude launches automatically f
 
 *   **Demo: Model Selection for Subagents**
     *   Explain that different subagents can use different models
-    *   Fast subagents (Explore) might use Haiku (fastest tier)
+    *   Fast subagents (Explore) might use Haiku (fastest tier; Haiku 5.5 has 1M context at $0.10/$0.50 per Mtok)
     *   Complex subagents (Plan) might use Opus (top tier)
     *   This optimizes both cost and performance
+    *   Since 2.1.292 Claude can pass `effort` per Agent call, so "Explore on Haiku at low effort, Plan on Opus at high" needs no custom agent file
 
 *   **Demo: Custom Agent Definitions**
     *   Show `.claude/agents/` directory for defining custom agents
     *   Each agent is a markdown file with YAML frontmatter:
-      - `model`, `tools`, `effort`, `hooks`, `permissionMode`
+      - `model`, `tools`, `effort`, `hooks`, `permissionMode`, `autoCompactWindow`
     *   **Prompt:** `Show me how to create a custom agent definition for security review`
 
 *   **Discussion Points:**
