@@ -468,7 +468,7 @@ osqueryi --json "SELECT version FROM osquery_info;"
    - When **other people** need it → push the plugin folder to a git repo, then register it in a [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces).
    - When a skill needs **live external context** (e.g., reading from a monitoring system or ticketing tool) → add an MCP server config inside the plugin (`.mcp.json` at the plugin root).
    - When a step has to be **deterministic** (e.g., always block a query that touches sensitive tables) → add a hook (`hooks/hooks.json` at the plugin root).
-   - Before you hand skills or a `CLAUDE.md` to a team → run **`/doctor prompt-audit`** (2.1.283). It flags prompting patterns written for older models across your CLAUDE.md files, skills, agents, and commands. Try it on this repo now — it ships `sample-claude-md/`, `skills/`, and `skills-and-plugins/`, exactly what the audit inspects.
+   - Before you hand skills or a `CLAUDE.md` to a team → run **`/doctor prompt-audit`** (2.1.283). It flags prompting patterns written for older models across the CLAUDE.md files, skills, agents, and commands that load into your sessions, in this project and under `~/.claude/`. Try it now — it reports findings with a proposed diff and applies nothing on its own.
 
    Reference for the multi-layer case: `skills-and-plugins/plugin-examples/team-standards-plugin.md`.
 
