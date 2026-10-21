@@ -729,6 +729,56 @@ CLAUDE.md file as though the user invoked the init task.
 
 ---
 
+# Mods: Code That Runs Inside Claude Code
+
+<v-clicks>
+
+- A **mod** is a plugin whose `hooks/register.js` runs *inside* Claude Code (2.1.287+)
+- Settings hooks shell out to a script; a mod's hooks are functions with three arguments:
+  - **`$`** the mods API (`$.ui`, `$.command`, `$.fs`, `$.model`, ...)
+  - **`e`** the event, as plain data (the tool name and its arguments, the prompt text, ...)
+  - **`next`** passes the event on to the other mods, then to Claude Code's own behavior
+- Three things a hook can do: **guard** (return `{ deny }`), **rewrite** (`next({ ...e, x })`), **observe** (`next(e)`)
+- What only a mod can do: draw a **pane** beside the transcript or a **band** above the prompt, add a `/command` that runs without a Claude turn, restyle the spinner or a tool call's row
+- **Trust**: a mod runs with your permissions, unsandboxed — `claude plugin validate ./some-mod` lists its `hooks:` and `calls:` before you install it
+
+</v-clicks>
+
+Docs: https://code.claude.com/docs/en/plugins/mods/overview
+
+---
+
+# Mod Example: Guard and Observe a Tool Call
+
+```js
+// first-mod/hooks/register.js  (plus .claude-plugin/plugin.json and hooks/hooks.json)
+export function register(on) {
+  // Guard: refuse edits to .env files before the tool runs
+  on('tool.call', { tool: 'Edit' }, ($, e, next) =>
+    /(^|\/)\.env(\.|$)/.test(e.file_path)
+      ? { deny: `${e.file_path} is protected` }
+      : next(e))
+
+  // Observe: count every tool call and show it in the status line
+  let calls = 0
+  on('tool.call', async ($, e, next) => {
+    $.ui.status(`tool calls: ${++calls}`)
+    return next(e)
+  })
+}
+```
+
+<v-clicks>
+
+- Load it for one session: `claude --plugin-dir ./first-mod` — edits to `register.js` reload live
+- Check it: `claude plugin validate ./first-mod` · test it with no session: `claude plugin test`
+- Same job as the `PreToolUse` shell hook earlier, with no JSON on stdin and no exit codes
+- Or just ask: *"make a mod that shows the git branch above the prompt"* — Claude writes and reloads it
+
+</v-clicks>
+
+---
+
 # Customizable Keybindings
 
 <v-clicks>
@@ -1824,7 +1874,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 - **`/effort ultracode`** — dynamic workflows are a session toggle, no longer tied to xhigh effort
 - **`/doctor prompt-audit`** — flags CLAUDE.md, skills, agents, and commands written for older models
 - **Hooks**: `onFailure: "block"` makes a crashed or timed-out hook fail closed instead of open
-- **Claude Mods**: plugins can modify deeper behavior; try `/plugin enable cc-plugin-you-should-know@builtin`
+- **Mods**: plugins whose JS/TS hooks run *inside* Claude Code — panes, `/commands`, tool-call guards (see the Mods slide)
 - **`/code-review --max-findings <n>|all`**; the Agent tool takes a per-call `effort`
 - **`claude --desktop`** — open the desktop app on this directory, or on a `--resume`d session
 - **Still worth knowing**: `/skill-doctor`, `/diff`, background sessions (`claude --bg`; `attach`/`logs` accept part of a name)

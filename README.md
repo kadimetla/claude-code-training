@@ -84,7 +84,7 @@ The `lab_handout.md` contains six progressive labs:
 3. **Test Generation** - Automated testing with AI
 4. **Documentation Creation** - Professional documentation workflows
 5. **Legacy Code Refactoring** - Modernizing Grails/Groovy applications
-6. **Advanced Workflows** - Plan Mode, Skills, Plugins, Output Styles, Hooks, CLAUDE.md, Agent Teams, and Dynamic Workflows
+6. **Advanced Workflows** - Plan Mode, Skills, Plugins, Output Styles, Hooks, Mods, CLAUDE.md, Agent Teams, and Dynamic Workflows
 
 ### Skills (formerly Custom Commands)
 As of Claude Code 2.1, custom slash commands are merged into skills. Students can explore and use the pre-built ones:

@@ -325,7 +325,7 @@ cp -r skills/modernize-java skills/security-review ~/.claude/skills/
 ## Lab 6: Advanced Workflows
 
 **Duration**: ~63 minutes
-**Goal**: Master advanced Claude Code features including Plan Mode, Skills, Plugins, Output Styles, Hooks, MCP, Agent Teams, and Surfaces
+**Goal**: Master advanced Claude Code features including Plan Mode, Skills, Plugins, Output Styles, Hooks, MCP, Agent Teams, Surfaces, and Mods
 
 ### Setup
 
@@ -698,6 +698,35 @@ osqueryi --json "SELECT version FROM osquery_info;"
    - When would you use each surface?
    - How do scheduled tasks differ across surfaces?
 
+#### Part J: Mods — Code Inside Claude Code (10 minutes, optional)
+
+> **Note**: Mods need Claude Code 2.1.287 or later (`claude --version`). A mod is a plugin whose JavaScript/TypeScript hooks run *inside* Claude Code, so it can draw a pane, add a `/command`, or guard a tool call — things a settings hook (a shell command) can't do. Docs: https://code.claude.com/docs/en/plugins/mods/overview
+
+26. **Ask Claude for a mod** (you don't write the code):
+   ```
+   Make a mod that opens a pane listing the tools Claude has called this session, newest last
+   ```
+   - Claude loads its built-in `plugin-authoring` skill and writes three files under `~/.claude/dev-mods/<session-id>/<mod-name>/`: `.claude-plugin/plugin.json`, `hooks/hooks.json`, and `hooks/register.tsx`
+   - In `default` or `acceptEdits` mode, approve each file (the mods folder is a protected path)
+   - When the first file lands, Claude Code asks **"Turn on the mods Claude writes in this session?"** — choose **Turn them on**. The mod loads when the turn ends
+   - Run `/plugin` and Tab to the **Installed** tab: the mod is listed, with a dim `1 mod active` line
+
+27. **Use it, then change it**:
+   - Ask Claude to do something with a few tool calls (`list the files here and read the README`) and watch the pane fill
+   - Now ask for a change. The mod reloads at the end of the turn:
+   ```
+   Add a /tool-calls-clear command to the mod that empties the list
+   ```
+   - Open `hooks/register.tsx` and find the three ideas every mod is built from: `on(event, matcher, hook)`, the `$` API (`$.ui.open`, `$.command.register`), and `next(e)` passing the event on
+
+28. **Keep it** (optional): a session's mods folder is cleaned up after `cleanupPeriodDays`. Copy the mod directory somewhere permanent and load it in any session:
+   ```bash
+   cp -r ~/.claude/dev-mods/<session-id>/tool-calls ~/mods/tool-calls
+   claude plugin validate ~/mods/tool-calls   # lists its hooks: and calls: lines
+   claude --plugin-dir ~/mods/tool-calls
+   ```
+   - `claude plugin validate` is also how you vet a mod *before* installing one: mods run with your permissions, unsandboxed
+
 ### Expected Outcomes
 
 After completing this lab, you will:
@@ -715,6 +744,7 @@ After completing this lab, you will:
 - **Run background agents for concurrent workflows**
 - **Understand the 5 Claude Code surfaces and when to use each**
 - **Use `/powerup` for self-directed feature learning**
+- **Ask Claude for a mod, and know what a mod can reach before installing one**
 
 ### Troubleshooting
 

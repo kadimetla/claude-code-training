@@ -401,7 +401,41 @@ Hooks execute shell commands in response to Claude Code events, enabling sophist
 
 ---
 
-### 10. Subagents: Specialized Task Handlers
+### 10. Mods: Code Inside Claude Code
+
+**Project:** `weather-app` (any project works)
+
+A mod is a plugin whose JavaScript/TypeScript hooks run *inside* Claude Code, not as a shell command. Teach it right after settings hooks: same idea (react to events), different reach (draw a pane, add a `/command`, hold or rewrite a tool call). Docs: https://code.claude.com/docs/en/plugins/mods/overview
+
+**Prerequisite:** Claude Code 2.1.287+ (`claude --version`). Mods are on by default; `--safe-mode` or `disableAllHooks` turns them off.
+
+**Demo Sequence:**
+
+*   **Demo: Settings hook vs. mod** (slide "Mods: Code That Runs Inside Claude Code")
+    *   Point at the `.env` guard: same job as the `security-validator.sh` PreToolUse hook from section 9, but it's a function with `$`, `e`, and `next` instead of a script parsing JSON on stdin
+    *   Three verbs: **guard** (`{ deny }`), **rewrite** (`next({ ...e, ... })`), **observe** (`next(e)`)
+    *   What only a mod can do: panes, bands above the prompt, `/commands` that run without a Claude turn, restyling the spinner
+
+*   **Demo: Ask Claude for a mod** (live, ~5 minutes)
+    *   **Prompt:** `Make a mod that shows the current git branch above the prompt`
+    *   Claude loads the built-in `plugin-authoring` skill and writes the mod under `~/.claude/dev-mods/<session-id>/`
+    *   **Show:** the "Turn on the mods Claude writes in this session?" question — this is the switch, and only the person at the prompt can flip it
+    *   Choose **Turn them on**; the band appears when the turn ends
+    *   Run `/plugin` → **Installed** tab: `1 mod active · git-branch`
+    *   **Then:** `Change the mod to show the branch in yellow when it isn't main` — reloads at the end of the turn. Hot reload is the point of the demo
+
+*   **Demo: Trust before you install**
+    *   Mods run with the user's permissions, unsandboxed: files, processes, network, env vars, every prompt and tool call
+    *   `claude plugin validate ./some-mod` lists `hooks:` and `calls:` without running it — show the output and point at `$.fs.write`, `$.http.fetch`, `$.process` as the lines to read first
+    *   Enterprise angle: managed settings can restrict to managed mods only (`allowManagedModsOnly`)
+
+*   **Optional: Sample mods** from Anthropic's `claude-code-playground` repo (`claude-code/mods/`): `blast-radius` holds a risky shell command and shows what it would change — a good callback to the security-hook demo. Load with `claude --plugin-dir <clone>/claude-code/mods/blast-radius`
+
+*   **Exercise:** Lab 6 Part J — students ask for a tool-calls pane, use it, change it, then validate and reload it with `--plugin-dir`
+
+**Key Point:** Skills give Claude knowledge, settings hooks give you deterministic checks, MCP gives Claude tools. A mod changes Claude Code itself. Reach for it when the other three can't draw it, hold it, or run it without a turn.
+
+### 11. Subagents: Specialized Task Handlers
 
 **Project:** `flask-api` for comprehensive demonstration
 
@@ -454,7 +488,7 @@ Subagents are autonomous specialized agents that Claude launches automatically f
 
 ---
 
-### 11. Orchestrating Multiple Features
+### 12. Orchestrating Multiple Features
 
 **Project:** `certificate-service` (final comprehensive demo)
 
@@ -558,7 +592,7 @@ Demonstrate how Skills, Hooks, Output Styles, and Subagents work together seamle
 
 ---
 
-### 12. Surfaces, Dispatch & Code Review
+### 13. Surfaces, Dispatch & Code Review
 
 **Project:** Any project
 
@@ -592,7 +626,7 @@ Demonstrate the multi-surface ecosystem and cloud planning.
 
 ---
 
-### 13. Auto-Memory, Scheduled Tasks & Channels
+### 14. Auto-Memory, Scheduled Tasks & Channels
 
 **Project:** Any project
 
