@@ -7,6 +7,7 @@ settings:
 overrides:
   slidev-component-progress>@slidev/client: ^51.8.2
   katex: ^0.18.7
+  fuse.js: 7.1.0
 
 importers:
 
@@ -1707,8 +1708,8 @@ packages:
     resolution: {integrity: sha512-0NVVC0TaP7dSTvn1yMiy6d6Q8gifzbvQafO46RtLG/kHJUBNd+pVRGOBoK44wNBvtSPUJRfdVvkFdD3p0xvyZg==}
     engines: {node: '>=14.16'}
 
-  fuse.js@7.5.0:
-    resolution: {integrity: sha512-sQtrEfA+ez/3G0cCZecF70oqpCRttCexYUG4mUrtWL49ULUzUyxokt5kyqwtKzj1270RaKih+hcP3qLcumccow==}
+  fuse.js@7.1.0:
+    resolution: {integrity: sha512-trLf4SzuuUxfusZADLINj+dE8clK1frKdmqiJNb1Es75fmI5oY6X2mxLVUciLLjxqw/xr72Dhy+lER6dGd02FQ==}
     engines: {node: '>=10'}
 
   fzf@0.5.2:
@@ -3677,7 +3678,7 @@ snapshots:
       drauu: 0.4.3
       file-saver: 2.0.5
       floating-vue: 5.4.0(@nuxt/kit@3.21.11)(vue@3.5.43(typescript@5.9.3))
-      fuse.js: 7.5.0
+      fuse.js: 7.1.0
       katex: 0.18.11
       lz-string: 1.5.0
       mermaid: 11.17.2
@@ -4902,7 +4903,7 @@ snapshots:
 
   function-timeout@0.1.1: {}
 
-  fuse.js@7.5.0: {}
+  fuse.js@7.1.0: {}
 
   fzf@0.5.2: {}
 
